@@ -1,14 +1,8 @@
 {
   "name": "trangdayhoconline",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "",
-  "main": "index.js",
-  "type": "module",
-=======
   "type": "module",
   "main": "app.js",
->>>>>>> master
   "scripts": {
     "start": "nodemon server.js"
   },
