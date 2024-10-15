@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import DatabaseConfig  from './src/config/databaseConfig.js';
+import DatabaseConfig from './src/config/databaseConfig.js';
 import GiangVien from './src/models/giangvien.schema.js';
 import SinhVien from './src/models/sinhvien.schema.js';
 import NguoiDung from './src/models/nguoidung.schema.js';
@@ -101,6 +101,7 @@ const seedData = async () => {
     };
 
     const khoaHoc = new KhoaHoc({
+      maKhoaHoc: `KH-${new mongoose.Types.ObjectId()}`, // Thêm mã khóa học
       tenKhoaHoc: 'Khóa học lập trình JavaScript',
       moTa: 'Khóa học cơ bản về JavaScript cho người mới bắt đầu.',
       ngayBatDau: new Date(),
