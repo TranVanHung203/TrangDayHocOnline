@@ -30,6 +30,7 @@ const TaiLieuSchema = new mongoose.Schema({
 });
 
 const KhoaHocSchema = new mongoose.Schema({
+  maKhoaHoc: { type: String, required: true }, // Thay đổi kiểu thành String
   tenKhoaHoc: { type: String, required: true },
   moTa: { type: String, required: true },
   ngayBatDau: { type: Date, required: true },
@@ -38,6 +39,7 @@ const KhoaHocSchema = new mongoose.Schema({
   taiLieu: [TaiLieuSchema],
   quizzes: [QuizSchema]
 }, { timestamps: true });
+
 
 const KhoaHoc = mongoose.model('Course', KhoaHocSchema);
 export default KhoaHoc;
