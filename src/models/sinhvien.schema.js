@@ -7,7 +7,7 @@ const TienDoSchema = new mongoose.Schema({
 });
 
 const KhoaHocSchema = new mongoose.Schema({
-  maKhoaHoc: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  maKhoaHoc: { type: String, ref: 'Course', required: true },  // Mã khóa học chuyển thành chuỗi
   ngayDangKy: { type: Date, required: true },
   tienDo: { type: TienDoSchema, required: true }
 });
@@ -16,7 +16,7 @@ const SinhVienSchema = new mongoose.Schema({
   hoTen: { type: String, required: true },
   ngaySinh: { type: Date, required: true },
   soKhoaHocDaThamGia: { type: Number, required: true },
-  maNguoiDung: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  maNguoiDung: { type: String, ref: 'User', required: true },  // Mã người dùng chuyển thành chuỗi
   khoaHocs: [KhoaHocSchema]
 }, { timestamps: true });
 
