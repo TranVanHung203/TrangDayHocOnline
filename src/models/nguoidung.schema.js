@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const NguoiDungSchema = new mongoose.Schema({
+  maNguoiDung: { type: String, unique: true },  // Mã người dùng (chuỗi), tạo sau khi lưu
   tenDangNhap: { type: String, required: true, unique: true },  // Tên đăng nhập (chuỗi)
   matKhau: { type: String, required: true },  // Mật khẩu (chuỗi)
   email: { type: String, required: true, unique: true },  // Email (chuỗi)
