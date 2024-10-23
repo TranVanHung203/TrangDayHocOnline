@@ -41,7 +41,7 @@ export const getCoursesByTeacher = async (req, res) => {
 import SinhVien from '../models/sinhvien.schema.js';
 import NguoiDung from '../models/nguoidung.schema.js';
 
-// Hàm tạo khóa học mới
+//Hàm tạo khóa học mới
 export const createCourse = async (req, res) => {
   try {
     const { courseName, description, startDate, endDate, instructorId, studentEmails } = req.body;
@@ -118,3 +118,58 @@ export const createCourse = async (req, res) => {
 
 
 
+
+
+export const getCourseByCode = async (req, res) => {
+  try {
+    const courseCode = req.params.code; // Lấy mã khóa học từ URL
+    const course = await KhoaHoc.findOne({ maKhoaHoc: courseCode }); // Tìm khóa học theo maKhoaHoc
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' }); // Khóa học không tồn tại
+    }
+
+    res.json(course); // Trả về thông tin khóa học nếu tìm thấy
+  } catch (error) {
+    res.status(500).json({ message: error.message }); // Xử lý lỗi
+  }
+
+};
+
+// Hàm để upload file
+export const uploadFile = async (req, res) => {
+  try {
+    const { maKhoaHoc } = req.params;
+    const { tenTaiLieu, loaiTaiLieu } = req.body;
+
+    // Kiểm tra nếu file không tồn tại
+    if (!req.file) {
+      return res.status(400).json({ message: 'Chưa có file nào được tải lên!' });
+    }
+
+    const filePath = `/uploads/${req.file.filename}`;
+
+    // Tạo thông tin tài liệu mới
+    const newTaiLieu = {
+      tenTaiLieu,
+      loaiTaiLieu,
+      duongDan: filePath, // Đường dẫn file upload
+    };
+
+    // Tìm khóa học và cập nhật tài liệu mới
+    const course = await KhoaHoc.findOneAndUpdate(
+      { maKhoaHoc },
+      { $push: { taiLieu: newTaiLieu } },
+      { new: true }
+    );
+
+    if (!course) {
+      return res.status(404).json({ message: 'Khóa học không tồn tại!' });
+    }
+
+    res.status(200).json(newTaiLieu); // Trả về tài liệu mới vừa được thêm
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Lỗi server!' });
+  }
+};

@@ -101,18 +101,18 @@ const seedData = async () => {
     };
 
     const khoaHoc = new KhoaHoc({
-        maKhoaHoc: 'kh123',  // Cung cấp giá trị cho `maKhoaHoc` là một string
-        tenKhoaHoc: 'Khóa học lập trình JavaScript',
-        moTa: 'Khóa học cơ bản về JavaScript cho người mới bắt đầu.',
-        ngayBatDau: new Date(),
-        ngayKetThuc: new Date(new Date().getTime() + 604800000), // 1 tuần sau
-        maGiangVien: giangVien.maNguoiDung, // Sử dụng `tenDangNhap` thay vì `ObjectId`
-        taiLieu: [taiLieu1, taiLieu2],
-        quizzes: [quiz1]
-      });
-      
-      await khoaHoc.save();
-      
+      maKhoaHoc: 'kh123',  // Cung cấp giá trị cho `maKhoaHoc` là một string
+      tenKhoaHoc: 'Khóa học lập trình JavaScript',
+      moTa: 'Khóa học cơ bản về JavaScript cho người mới bắt đầu.',
+      ngayBatDau: new Date(),
+      ngayKetThuc: new Date(new Date().getTime() + 604800000), // 1 tuần sau
+      maGiangVien: giangVien.maNguoiDung, // Sử dụng `tenDangNhap` thay vì `ObjectId`
+      taiLieu: [taiLieu1, taiLieu2],
+      quizzes: [quiz1]
+    });
+
+    await khoaHoc.save();
+
 
     await khoaHoc.save();
 
