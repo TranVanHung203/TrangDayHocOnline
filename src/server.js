@@ -5,6 +5,10 @@ import connectDB from './config/databaseConfig.js';
 const app = express();
 const port = 8081 || 8888;
 
+//config request body
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 await connectDB();
 
 app.use('/v1/api', apiRoutes)
