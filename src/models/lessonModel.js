@@ -8,10 +8,10 @@ const lessonSchema = new mongoose.Schema({
     course_order: Number,
     start_deadline: Date,
     end_deadline: Date,
-    users: [
+    students: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user"
+            ref: "student"
         }
     ],
     completed_datetime: [],

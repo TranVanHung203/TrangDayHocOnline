@@ -4,10 +4,10 @@ const courseSchema = new mongoose.Schema({
     name: String,
     description: String,
     is_progress_limited: Boolean,
-    users: [
+    students: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user"
+            ref: "student"
         }
     ],
     modules: [],
