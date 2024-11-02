@@ -6,7 +6,7 @@ const courseSchema = new mongoose.Schema({
     users: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user"
+            ref: "student"
         }
     ],
     modules: [],
