@@ -1,6 +1,6 @@
-import KhoaHoc from '../models/khoahoc.schema.js';
+import KhoaHoc from '../models/courseModel.jsz';
 
-// Hàm lấy tất cả các khóa học
+// Hàm lấy tất cả các khóa 
 export const getAllCourses = async (req, res) => {
   try {
     // Tìm tất cả khóa học từ cơ sở dữ liệu
@@ -51,8 +51,24 @@ export const createCourse = async (req, res) => {
       return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin khóa học." });
     }
 
+    // Tạo mã khóa học tự động
+    const yearMonth = new Date().getFullYear() + ("0" + (new Date().getMonth() + 1)).slice(-2);  // Format YYYYMM
+    const lastCourse = await KhoaHoc.findOne().sort({ maKhoaHoc: -1 }).limit(1);  // Tìm khóa học có mã lớn nhất
+
+    let courseCode = `KH-${yearMonth}-001`;  // Mặc định là 001
+    if (lastCourse) {
+      const lastCode = parseInt(lastCourse.maKhoaHoc.split('-')[2], 10);  // Lấy số thứ tự từ mã khóa học
+      const newCode = lastCode + 1;  // Tăng số thứ tự lên 1
+      courseCode = `KH-${yearMonth}-${("00" + newCode).slice(-3)}`;  // Cập nhật mã khóa học với số thứ tự mới
+    }
+
+    // Tạo một chuỗi ngẫu nhiên để thêm vào mã khóa học
+    const randomSuffix = Math.floor(Math.random() * 1000);  // Tạo số ngẫu nhiên từ 0 đến 999
+    courseCode += `-${randomSuffix}`;  // Thêm phần ngẫu nhiên vào mã khóa học
+
     // Tạo khóa học mới với các thông tin cơ bản
     const newCourse = new KhoaHoc({
+      maKhoaHoc: courseCode,  // Mã khóa học tự động tạo
       tenKhoaHoc: courseName,
       moTa: description,
       ngayBatDau: new Date(startDate),
@@ -70,25 +86,21 @@ export const createCourse = async (req, res) => {
       for (const email of studentEmails) {
         // Tìm người dùng dựa trên email và vai trò là sinh viên
         const user = await NguoiDung.findOne({ email, vaiTro: 'Student' });
+        console.warn(user.maNguoiDung)
 
         if (user) {
           // Tìm hoặc tạo sinh viên từ bảng SinhVien dựa trên mã người dùng (maNguoiDung)
-          let student = await SinhVien.findOne({ maNguoiDung: user._id });
+          let student = await SinhVien.findOne({ maNguoiDung: user.maNguoiDung });
 
           // Nếu sinh viên chưa có trong bảng SinhVien, tạo mới
           if (!student) {
-            student = new SinhVien({
-              hoTen: user.tenDangNhap,  // Sử dụng tên đăng nhập từ bảng người dùng làm tên sinh viên
-              ngaySinh: null,           // Bạn có thể sửa lại để nhập thêm ngày sinh nếu cần
-              soKhoaHocDaThamGia: 0,
-              maNguoiDung: user._id,
-              khoaHocs: []
-            });
+            console.warn(`Không tìm thấy sinh viên với email: ${email}.`);
+            continue; // Bỏ qua sinh viên này và tiếp tục với sinh viên tiếp theo
           }
 
           // Thêm khóa học vào danh sách khóa học của sinh viên
           student.khoaHocs.push({
-            maKhoaHoc: savedCourse._id,
+            maKhoaHoc: savedCourse.maKhoaHoc,
             ngayDangKy: new Date(),  // Ngày đăng ký tự động là ngày hiện tại
             tienDo: {
               soBaiGiangDaHoanThanh: 0,
@@ -118,6 +130,11 @@ export const createCourse = async (req, res) => {
 
 
 
+export const editCourse = async (req, res) => {
+  try {
+    const { courseCode } = req.params; // Lấy courseCode từ URL params
+    // Lấy dữ liệu từ req.body
+    const { tenKhoaHoc, moTa, ngayBatDau, ngayKetThuc, maGiangVien, studentEmails } = req.body;
 
 
 export const getCourseByCode = async (req, res) => {

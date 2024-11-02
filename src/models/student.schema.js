@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { userSchema } from './userModel';
+import { userSchema } from './user.schema';
 
 const studentSchema = new mongoose.Schema({
     user: userSchema,
@@ -15,15 +15,12 @@ const studentSchema = new mongoose.Schema({
             ref: "lesson"
         }
     ],
-    completed_datetime: [],
     quizzes: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "quiz"
         }
     ],
-    score_achieved: [],
-    attempt_datetime: []
 });
 
 const Student = mongoose.model('student', studentSchema);

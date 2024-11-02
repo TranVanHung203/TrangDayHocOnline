@@ -3,11 +3,10 @@ import mongoose from 'mongoose';
 const courseSchema = new mongoose.Schema({
     name: String,
     description: String,
-    is_progress_limited: Boolean,
     users: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user"
+            ref: "student"
         }
     ],
     modules: [],

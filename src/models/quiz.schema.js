@@ -9,10 +9,10 @@ const quizSchema = new mongoose.Schema({
     start_deadline: Date,
     end_deadline: Date,
     quiz_questions: [],
-    users: [
+    students: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "user"
+            ref: "student"
         }
     ],
     score_achieved: [],
