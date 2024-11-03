@@ -7,9 +7,6 @@ const userSchema = new mongoose.Schema({
     role: String
 });
 
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model('User', userSchema);
 
-// Export mặc định
 export default User;
-// Hoặc export cả schema
-export { userSchema };

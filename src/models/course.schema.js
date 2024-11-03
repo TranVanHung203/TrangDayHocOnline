@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 const courseSchema = new mongoose.Schema({
     name: String,
     description: String,
-    start_day:Date,
-    end_day:Date,
+    start_day: Date,
+    end_day: Date,
     modules: [],
     quiz: [
         {

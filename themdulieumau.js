@@ -1,120 +1,162 @@
 import mongoose from 'mongoose';
 import DatabaseConfig from './src/config/databaseConfig.js';
-import GiangVien from './src/models/giangvien.schema.js';
-import SinhVien from './src/models/sinhvien.schema.js';
-import NguoiDung from './src/models/nguoidung.schema.js';
-import KhoaHoc from './src/models/khoahoc.schema.js';
-import ThongBao from './src/models/thongbao.schema.js';
+import Course from './src/models/course.schema.js';
+import Lecturer from './src/models/lecturer.schema.js';
+import Lesson from './src/models/lesson.schema.js';
+import Module from './src/models/module.schema.js';
+import Quiz from './src/models/quiz.schema.js';
+import QuizAnswer from './src/models/quizAnswer.schema.js';
+import QuizQuestion from './src/models/quizQuestion.schema.js';
+import Student from './src/models/student.schema.js';
+import StudentQuizAnswer from './src/models/studentQuizAnswer.schema.js';
+import User from './src/models/user.schema.js';
 
 const seedData = async () => {
   try {
-    const dbConfig = new DatabaseConfig(); // Tạo instance của DatabaseConfig
-    await dbConfig.connect(); // Gọi phương thức connect() để kết nối cơ sở dữ liệu
+    const dbConfig = new DatabaseConfig();
+    await dbConfig.connect();
 
-    // Xóa tất cả dữ liệu cũ trước khi chèn dữ liệu mới
-    await GiangVien.deleteMany({});
-    await SinhVien.deleteMany({});
-    await NguoiDung.deleteMany({});
-    await KhoaHoc.deleteMany({});
-    await ThongBao.deleteMany({});
+    // Xóa dữ liệu cũ
+    await Course.deleteMany({});
+    await Lecturer.deleteMany({});
+    await Lesson.deleteMany({});
+    await Module.deleteMany({});
+    await Quiz.deleteMany({});
+    await QuizAnswer.deleteMany({});
+    await QuizQuestion.deleteMany({});
+    await Student.deleteMany({});
+    await StudentQuizAnswer.deleteMany({});
+    await User.deleteMany({});
 
-    // Tạo dữ liệu NguoiDung
-    const nguoiDung1 = new NguoiDung({
-      tenDangNhap: 'giangvien1',
-      matKhau: 'password',
-      email: 'giangvien1@example.com',
-      vaiTro: 'Teacher'
-    });
-    const nguoiDung2 = new NguoiDung({
-      tenDangNhap: 'sinhvien1',
-      matKhau: 'password',
-      email: 'sinhvien1@example.com',
-      vaiTro: 'Student'
-    });
+    // Thêm dữ liệu User
+    const lecturerUser = new User({ name: 'Giảng viên A', email: 'lecturer@example.com', password: 'password', role: 'lecturer', is_admin: false });
+    const studentUser1 = new User({ name: 'Sinh viên B', email: 'student@example.com', password: 'password', role: 'student', is_admin: false });
+    const studentUser2 = new User({ name: 'Sinh viên C', email: 'student1@example.com', password: 'password1', role: 'student', is_admin: false });
 
-    await nguoiDung1.save();
-    await nguoiDung2.save();
+    await lecturerUser.save();
+    await studentUser1.save();
+    await studentUser2.save();
 
-    // Tạo GiangVien
-    const giangVien = new GiangVien({
-      hoTen: 'Nguyen Van A',
-      gioiThieu: 'Chuyên gia lập trình',
-      maNguoiDung: nguoiDung1.tenDangNhap // Sử dụng `tenDangNhap` thay vì `ObjectId`
-    });
+    // Thêm dữ liệu Lecturer và Student với tham chiếu tới User
+    const lecturer = new Lecturer({ user: lecturerUser._id, courses: [] });
+    const student1 = new Student({ user: studentUser1._id, courses: [] });
+    const student2 = new Student({ user: studentUser2._id, courses: [] });
 
-    await giangVien.save();
+    await lecturer.save();
+    await student1.save();
+    await student2.save();
 
-    // Tạo SinhVien
-    const sinhVien = new SinhVien({
-      hoTen: 'Nguyen Van B',
-      ngaySinh: new Date('1995-05-10'),
-      soKhoaHocDaThamGia: 2,
-      maNguoiDung: nguoiDung2.tenDangNhap, // Sử dụng `tenDangNhap` thay vì `ObjectId`
-      khoaHocs: []
-    });
+    // Thêm dữ liệu Course và liên kết với Lecturer và Students
+    const courses = [
+      { name: 'Khóa học JavaScript', description: 'Học cơ bản về JavaScript' },
+      { name: 'Khóa học Python', description: 'Học cơ bản về Python' }
+    ];
 
-    await sinhVien.save();
-
-    // Tạo dữ liệu cho KhoaHoc
-    const taiLieu1 = {
-      maTaiLieu: 'taiLieu1',  // Sử dụng string cho `maTaiLieu`
-      tenTaiLieu: 'Hướng dẫn lập trình JavaScript',
-      loaiTaiLieu: 'PDF',
-      duongDan: '/duongdan/huongdan-js.pdf'
-    };
-
-    const taiLieu2 = {
-      maTaiLieu: 'taiLieu2',  // Sử dụng string cho `maTaiLieu`
-      tenTaiLieu: 'Video giảng dạy React',
-      loaiTaiLieu: 'Video',
-      duongDan: '/duongdan/video-react.mp4'
-    };
-
-    const quiz1 = {
-      maQuiz: 'quiz1',  // Sử dụng string cho `maQuiz`
-      tenQuiz: 'Quiz về JavaScript',
-      ngayBatDau: new Date(),
-      ngayKetThuc: new Date(new Date().getTime() + 3600000), // 1 giờ sau
-      thoiGian: 30, // Thời gian 30 phút
-      xemLaiBai: true,
-      cauHoi: [
-        {
-          maCauHoi: 'cauHoi1',  // Sử dụng string cho `maCauHoi`
-          noiDungCauHoi: 'JavaScript là gì?',
-          dapAn: 'Ngôn ngữ lập trình',
-          dapanChon: [
-            {
-              maAnswer: 'answer1',  // Sử dụng string cho `maAnswer`
-              maSinhVien: sinhVien.maNguoiDung, // Sử dụng `tenDangNhap` thay vì `ObjectId`
-              dapAnChon: 'Ngôn ngữ lập trình',
-              dungSai: true
-            },
-            {
-              maAnswer: 'answer2',  // Sử dụng string cho `maAnswer`
-              maSinhVien: sinhVien.maNguoiDung, // Sử dụng `tenDangNhap` thay vì `ObjectId`
-              dapAnChon: 'Ngôn ngữ máy',
-              dungSai: false
-            }
-          ]
-        }
-      ]
-    };
-
-    const khoaHoc = new KhoaHoc({
-        maKhoaHoc: 'kh123',  // Cung cấp giá trị cho `maKhoaHoc` là một string
-        tenKhoaHoc: 'Khóa học lập trình JavaScript',
-        moTa: 'Khóa học cơ bản về JavaScript cho người mới bắt đầu.',
-        ngayBatDau: new Date(),
-        ngayKetThuc: new Date(new Date().getTime() + 604800000), // 1 tuần sau
-        maGiangVien: giangVien.maNguoiDung, // Sử dụng `tenDangNhap` thay vì `ObjectId`
-        taiLieu: [taiLieu1, taiLieu2],
-        quizzes: [quiz1]
+    for (const courseData of courses) {
+      const course = new Course({
+        name: courseData.name,
+        description: courseData.description,
+        modules: [], // Dùng modules thay vì lessons
+        quiz: []
       });
-      
-      await khoaHoc.save();
-      
+      lecturer.courses.push(course._id); // Thêm khóa học vào giảng viên
+      student1.courses.push(course._id); // Thêm khóa học vào sinh viên 1
+      student2.courses.push(course._id); // Thêm khóa học vào sinh viên 2
 
-    await khoaHoc.save();
+      await course.save();
+    }
+
+    await lecturer.save();
+    await student1.save();
+    await student2.save();
+
+    // Thêm dữ liệu Module và liên kết với Course
+    const firstCourse = await Course.findOne({ name: 'Khóa học JavaScript' });
+    const module = new Module({
+      name: 'Module 1',
+      number: 1,
+      lessons: [] // Danh sách các bài học cho module này
+    });
+
+    // Thêm dữ liệu Lesson và liên kết với Module
+    const lesson = new Lesson({
+      name: 'Bài học JavaScript cơ bản',
+      number: 1,
+      document_url: '/path/to/document.pdf',
+      lesson_details: 'Chi tiết bài học JavaScript',
+      course_order: 1,
+      type: 'PDF'
+    });
+
+    module.lessons.push(lesson._id); // Thêm bài học vào module
+    await lesson.save();
+    await module.save();
+
+    firstCourse.modules.push(module._id); // Thêm module vào khóa học
+    await firstCourse.save();
+
+    // Thêm dữ liệu Quiz cho khóa học đầu tiên
+    const quiz = new Quiz({
+      name: 'Quiz về JavaScript',
+      number: 1,
+      course_order: 1,
+      min_pass_score: 5,
+      is_pass_required: true,
+      start_deadline: new Date(),
+      end_deadline: new Date(new Date().getTime() + 604800000), // Một tuần sau ngày bắt đầu
+      quiz_questions: [],
+      students: [student1._id, student2._id], // Thêm sinh viên vào quiz
+      score_achieved: [8, 6], // Điểm cho mỗi sinh viên tương ứng
+      attempt_datetime: [new Date(), new Date()] // Thời gian làm bài của mỗi sinh viên
+    });
+
+    firstCourse.quiz.push(quiz._id); // Thêm quiz vào khóa học đầu tiên
+    await quiz.save();
+    await firstCourse.save();
+
+    // Thêm dữ liệu QuizQuestion và liên kết với Quiz
+    const quizQuestion = new QuizQuestion({
+      question_title: 'JavaScript là gì?',
+      quiz_answers: []
+    });
+    quiz.quiz_questions.push(quizQuestion._id);
+    await quizQuestion.save();
+    await quiz.save();
+
+    // Thêm dữ liệu QuizAnswer và liên kết với QuizQuestion
+    const quizAnswer1 = new QuizAnswer({
+      answer_text: 'Ngôn ngữ lập trình',
+      is_correct: true
+    });
+    const quizAnswer2 = new QuizAnswer({
+      answer_text: 'Ngôn ngữ máy',
+      is_correct: false
+    });
+    await quizAnswer1.save();
+    await quizAnswer2.save();
+
+    // Cập nhật QuizQuestion với câu trả lời
+    quizQuestion.quiz_answers.push(quizAnswer1._id, quizAnswer2._id);
+    await quizQuestion.save();
+
+    // Thêm dữ liệu StudentQuizAnswer cho mỗi sinh viên
+    const studentQuizAnswer1 = new StudentQuizAnswer({
+      student: student1._id,
+      quiz: quiz._id,
+      question: quizQuestion._id,
+      answer: quizAnswer1._id,
+      is_correct: quizAnswer1.is_correct
+    });
+    const studentQuizAnswer2 = new StudentQuizAnswer({
+      student: student2._id,
+      quiz: quiz._id,
+      question: quizQuestion._id,
+      answer: quizAnswer2._id,
+      is_correct: quizAnswer2.is_correct
+    });
+
+    await studentQuizAnswer1.save();
+    await studentQuizAnswer2.save();
 
     console.log('Dữ liệu đã được chèn thành công!');
     process.exit();

@@ -6,8 +6,8 @@ const lessonSchema = new mongoose.Schema({
     document_url: String,
     lesson_details: String,
     course_order: Number,
-    type: String ,
-    
+    type: String,
+
 });
 
 const Lesson = mongoose.model('lesson', lessonSchema);

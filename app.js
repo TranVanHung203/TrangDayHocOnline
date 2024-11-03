@@ -21,14 +21,17 @@ app.use(cors({
 // Kết nối đến cơ sở dữ liệu
 databaseConfig.connect();
 
-// Route API cho homepage
-app.use('/api', homepageRoute);
+// // Route API cho homepage
+// app.use('/api', homepageRoute);
 
 // Route tạo khóa học
 app.use('/courses', courseRoutes);
 
 
-app.use('/updatecourses', updatecourse);
+// app.use('/updatecourses', updatecourse);
+
+// // Định nghĩa route cho khóa học
+// app.use('/api', khoaHocRoute); // Sử dụng route khóa học
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
