@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import homepageRoute from './src/routes/homepage.js';
-import createCourse from './src/routes/createcourse.js';
+import courseRoutes from './src/routes/courseRoutes.js';
 import updatecourse from './src/routes/updatecourse.js';
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
 
@@ -25,7 +25,7 @@ databaseConfig.connect();
 app.use('/api', homepageRoute);
 
 // Route tạo khóa học
-app.use('/courses', createCourse);
+app.use('/courses', courseRoutes);
 
 
 app.use('/updatecourses', updatecourse);

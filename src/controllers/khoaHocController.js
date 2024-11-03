@@ -1,4 +1,4 @@
-import KhoaHoc from '../models/courseModel.jsz';
+import KhoaHoc from '../models/courseModel.js';
 
 // Hàm lấy tất cả các khóa 
 export const getAllCourses = async (req, res) => {

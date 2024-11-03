@@ -10,6 +10,6 @@ const lessonSchema = new mongoose.Schema({
     
 });
 
-const Lesson = mongoose.model('lesson', lessonSchemaSchema);
+const Lesson = mongoose.model('lesson', lessonSchema);
 
 export default Lesson;
