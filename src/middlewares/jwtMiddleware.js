@@ -1,12 +1,11 @@
-import UnauthorizedError from "../errors/unauthorizedError.js";
-import { User } from "../models/user.schema.js";
-import jwtServices from "../utils/jwtServices.js";
+
+
 
 const jwtMiddleware = async (req, res, next) => {
   try {
       req.user = {};
-      req.user.id = "aa"
-      req.user.role = "teacher"
+      req.user.id = "672703041cb56f099b77d6e0"
+      req.user.role = "Lecturer"
       next()
   } catch (err) {
     return next(err); 
@@ -14,4 +13,3 @@ const jwtMiddleware = async (req, res, next) => {
 };
 
 export default jwtMiddleware;
-

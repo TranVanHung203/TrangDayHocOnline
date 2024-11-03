@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import homepageRoute from './src/routes/homepage.js';
+
 import courseRoutes from './src/routes/courseRoutes.js';
-import updatecourse from './src/routes/updatecourse.js';
+
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
 import jwtMiddleware from './src/middlewares/jwtMiddleware.js'
 import { errorHandler } from './src/errors/errorHandler.js';
@@ -16,7 +16,7 @@ app.use(express.json());
 // Cấu hình CORS
 app.use(cors({
   origin: 'http://localhost:3000', // Đảm bảo địa chỉ này đúng
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
