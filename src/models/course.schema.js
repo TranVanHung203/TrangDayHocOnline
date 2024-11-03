@@ -3,12 +3,8 @@ import mongoose from 'mongoose';
 const courseSchema = new mongoose.Schema({
     name: String,
     description: String,
-    users: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "student"
-        }
-    ],
+    start_day: Date,
+    end_day: Date,
     modules: [],
     quiz: [
         {

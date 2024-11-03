@@ -19,6 +19,6 @@ const quizSchema = new mongoose.Schema({
     attempt_datetime: []
 });
 
-const Quiz = mongoose.model('quiz', quizSchemaSchema);
+const Quiz = mongoose.model('quiz', quizSchema);
 
 export default Quiz;

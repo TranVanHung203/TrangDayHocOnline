@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
-import { userSchema } from './user.schema';
 
 const lecturerSchema = new mongoose.Schema({
-    user: userSchema,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     courses: [
         {
             type: mongoose.Schema.Types.ObjectId,
