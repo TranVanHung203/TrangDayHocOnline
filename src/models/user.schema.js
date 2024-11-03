@@ -7,6 +7,6 @@ const userSchema = new mongoose.Schema({
     is_admin: Boolean
 });
 
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model('User', userSchema);
 
-export { User, userSchema };
+export default User;

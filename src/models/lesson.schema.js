@@ -6,10 +6,10 @@ const lessonSchema = new mongoose.Schema({
     document_url: String,
     lesson_details: String,
     course_order: Number,
-    type: String ,
-    
+    type: String,
+
 });
 
-const Lesson = mongoose.model('lesson', lessonSchemaSchema);
+const Lesson = mongoose.model('lesson', lessonSchema);
 
 export default Lesson;

@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import homepageRoute from './src/routes/homepage.js';
-import createCourse from './src/routes/createcourse.js';
-import updatecourse from './src/routes/updatecourse.js';
-import khoaHocRoute from './src/routes/createdocument.js'; // Import khoaHocRoute mới tạo
+// import homepageRoute from './src/routes/homepage.js';
+// import createCourse from './src/routes/createcourse.js';
+// import updatecourse from './src/routes/updatecourse.js';
+// import khoaHocRoute from './src/routes/createdocument.js'; // Import khoaHocRoute mới tạo
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
 
 const app = express();
@@ -22,17 +22,17 @@ app.use(cors({
 // Kết nối đến cơ sở dữ liệu
 databaseConfig.connect();
 
-// Route API cho homepage
-app.use('/api', homepageRoute);
+// // Route API cho homepage
+// app.use('/api', homepageRoute);
 
-// Route tạo khóa học
-app.use('/courses', createCourse);
+// // Route tạo khóa học
+// app.use('/courses', createCourse);
 
 
-app.use('/updatecourses', updatecourse);
+// app.use('/updatecourses', updatecourse);
 
-// Định nghĩa route cho khóa học
-app.use('/api', khoaHocRoute); // Sử dụng route khóa học
+// // Định nghĩa route cho khóa học
+// app.use('/api', khoaHocRoute); // Sử dụng route khóa học
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
