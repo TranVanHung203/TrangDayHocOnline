@@ -5,7 +5,9 @@ import NotFoundError from '../errors/notFoundError.js';
 import ForbiddenError from '../errors/forbiddenError.js';
 import UnauthorizedError from '../errors/unauthorizedError.js';
 import User from '../models/user.schema.js';
-
+import Quiz from '../models/quiz.schema.js'
+import Lesson from '../models/lesson.schema.js'
+import Module from '../models/module.schema.js';
 import mongoose from 'mongoose';
 
 
@@ -14,16 +16,23 @@ export const getCoursesByUserId = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const objectId = new mongoose.Types.ObjectId(userId);
-    
+
     const { page = 1, limit = 9 } = req.query; // Default pagination values
     const parsedLimit = Math.min(parseInt(limit), 9); // Limit to a maximum of 9
 
+    // Get the current date at midnight to filter courses by day only
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Set currentDate to 00:00:00
+
     // Check if user is a student
-    const student = await Student.findOne({ user: objectId }).populate('courses');
+    const student = await Student.findOne({ user: objectId }).populate({
+      path: 'courses',
+      match: { end_day: { $gte: currentDate } }, // Only courses with end_day >= today (date only)
+    });
 
     if (student) {
-      const totalCourses = student.courses.length; // Count total courses
-      const courses = student.courses.slice((page - 1) * parsedLimit, page * parsedLimit); // Paginate courses
+      const totalCourses = student.courses.length;
+      const courses = student.courses.slice((page - 1) * parsedLimit, page * parsedLimit);
 
       return res.status(200).json({
         totalCourses,
@@ -34,7 +43,11 @@ export const getCoursesByUserId = async (req, res, next) => {
     }
 
     // Check if user is a lecturer
-    const lecturer = await Lecturer.findOne({ user: objectId }).populate('courses');
+    const lecturer = await Lecturer.findOne({ user: objectId }).populate({
+      path: 'courses',
+      match: { end_day: { $gte: currentDate } }, // Only courses with end_day >= today (date only)
+    });
+
     if (lecturer) {
       const totalCourses = lecturer.courses.length;
       const courses = lecturer.courses.slice((page - 1) * parsedLimit, page * parsedLimit);
@@ -52,7 +65,6 @@ export const getCoursesByUserId = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const createCourse = async (req, res, next) => {
   try {
@@ -182,7 +194,7 @@ export const getCourseToUpdate = async (req, res, next) => {
     });
 
     if (!lecturer) {
-      throw new ForbiddenError('You do not have permission to view this course.');
+      throw new ForbiddenError('You do not have permission to edit this course.');
     }
 
     // Retrieve course information from the database
@@ -207,6 +219,79 @@ export const getCourseToUpdate = async (req, res, next) => {
         emails
       }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+//-------------------------------------------------------------
+
+export const getCourseById = async (req, res, next) => {
+  try {
+    const course = await Course.findById(req.params.courseId)
+      .populate({
+        path: 'modules',
+        populate: {
+          path: 'lessons',
+          model: 'lesson'
+        }
+      })
+      .populate('quiz');
+
+
+    if (!course) {
+      return res.status(404).json({ message: `Course with id ${req.params.courseId} doesn't exist` });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+//XÓA MODULES
+export const deleteModule = async (req, res, next) => {
+  const { moduleId } = req.params;
+
+  try {
+    // Kiểm tra vai trò của người dùng
+    if (req.user.role !== 'Lecturer') {
+      throw new ForbiddenError('Only lecturers are allowed to delete modules.');
+    }
+
+    // Lấy thông tin module để tìm khóa học mà nó thuộc về
+    const module = await Module.findById(moduleId);
+    if (!module) {
+      return res.status(404).json({ message: `Module with id ${moduleId} doesn't exist` });
+    }
+
+    const moduleIdObject = new mongoose.Types.ObjectId(moduleId);
+    // Find the course that includes the specified moduleId in its modules array
+    const course = await Course.findOne({ modules: moduleIdObject }).populate('modules');
+
+    // Kiểm tra xem giảng viên có quyền xóa module này không
+    const lecturer = await Lecturer.findOne({
+      user: req.user.id,
+      courses: { $in: [course._id] } // Check if the lecturer is associated with the course
+    });
+
+
+
+    if (!lecturer) {
+      throw new ForbiddenError('You do not have permission to delete this module.');
+    }
+
+    // Xóa module
+    const deletedModule = await Module.findByIdAndDelete(moduleId);
+
+    // Cập nhật khóa học để loại bỏ module đã xóa
+    await Course.findByIdAndUpdate(module.courseId, {
+      $pull: { modules: moduleId } // Loại bỏ module khỏi khóa học
+    });
+
+    res.status(200).json({ message: `Module with id ${moduleId} has been deleted` });
   } catch (error) {
     next(error);
   }

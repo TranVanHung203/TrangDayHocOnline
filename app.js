@@ -2,10 +2,12 @@ import express from 'express';
 import cors from 'cors';
 
 import courseRoutes from './src/routes/courseRoutes.js';
+import quizzRoutes from './src/routes/quizzRoutes.js';
 
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
 import jwtMiddleware from './src/middlewares/jwtMiddleware.js'
 import { errorHandler } from './src/errors/errorHandler.js';
+
 
 const app = express();
 const databaseConfig = new DatabaseConfig(); // Tạo một thể hiện của lớp DatabaseConfig
@@ -23,16 +25,16 @@ app.use(cors({
 // Kết nối đến cơ sở dữ liệu
 databaseConfig.connect();
 
-// // Route API cho homepage
-// app.use('/api', homepageRoute);
+
 
 
 app.use(jwtMiddleware)
 app.use('/courses', courseRoutes);
+app.use('/quizzes/',quizzRoutes)
 app.use(errorHandler);
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

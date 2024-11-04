@@ -19,7 +19,7 @@ const studentQuizAnswerSchema = new mongoose.Schema({
     answer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "quiz_answer",
-        required: true
+        required: false
     },
     is_correct: {
         type: Boolean,

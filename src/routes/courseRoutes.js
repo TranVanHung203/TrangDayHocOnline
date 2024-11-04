@@ -4,8 +4,9 @@ import {
     getCoursesByUserId,
     updateCourse,
     getCourseToUpdate,
-    //getCourseById
-} from '../controllers/khoaHocController.js'; // Nhập các controller
+    getCourseById,
+    deleteModule,
+} from '../controllers/courseController.js'; // Nhập các controller
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.get('/updateview/:courseId', getCourseToUpdate);
 
 
 // // Lấy thông tin một khóa học theo ID khóa học
-// router.get('/:courseId', getCourseById);
+router.get('/:courseId', getCourseById);
 
 // router.post('/lessons/:moduleId', upload.single('file'), uploadFile);
 
@@ -31,6 +32,6 @@ router.get('/updateview/:courseId', getCourseToUpdate);
 
 // router.post('/modules/:courseId', createModule);
 
-// router.delete('/modules/:moduleId', deleteLesson);
+router.delete('/modules/:moduleId', deleteModule);
 
 export default router;
