@@ -4,6 +4,7 @@ import StudentQuizAnswer from '../models/studentQuizAnswer.schema.js';
 import QuizAnswer from '../models/quizAnswer.schema.js';
 import Course from '../models/course.schema.js'
 import Student from '../models/student.schema.js';
+import Lecturer from '../models/lecturer.schema.js';
 import mongoose from 'mongoose';
 
 import NotFoundError from '../errors/notFoundError.js';
@@ -269,6 +270,143 @@ export const startQuiz = async (req, res, next) => {
       start_deadline: quiz.start_deadline,
       end_deadline: quiz.end_deadline,
       is_pass_required: quiz.is_pass_required,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+
+export const updateQuiz = async (req, res, next) => {
+  try {
+    // Step 1: Check if the user is a Lecturer
+    if (req.user.role !== 'Lecturer') {
+      throw new ForbiddenError('Access denied. Only lecturers can update quizzes.');
+    }
+
+    const { quizId } = req.params;
+    const { name, min_pass_score, start_deadline, end_deadline } = req.body;
+
+    // Step 2: Validate the quiz ID
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      throw new BadRequestError('Invalid quiz ID.');
+    }
+
+    // Step 3: Find the course associated with the quiz
+    const course = await Course.findOne({ quiz: quizId });
+    if (!course) {
+      throw new NotFoundError('Quiz or associated course not found.');
+    }
+
+    // Step 4: Check if the lecturer is associated with the course
+    const lecturer = await Lecturer.findOne({ user: req.user.id, courses: course._id });
+    if (!lecturer) {
+      throw new ForbiddenError('Access denied. You are not associated with this course.');
+    }
+ 
+
+    // Step 5: Update the quiz fields
+    const updatedQuiz = await Quiz.findByIdAndUpdate(
+      quizId,
+      { name, min_pass_score, start_deadline, end_deadline },
+      { new: true, runValidators: true }
+    );
+
+    // Step 6: Send the updated quiz as the response
+    res.status(200).json({
+      message: 'Quiz updated successfully',
+      quiz: updatedQuiz,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+
+
+
+export const updateQuestionandAnswer = async (req, res, next) => {
+  try {
+    // Step 1: Check if the user is a Lecturer
+    if (req.user.role !== 'Lecturer') {
+      throw new ForbiddenError('Access denied. Only lecturers can update quiz questions.');
+    }
+
+    const { quizId, questionId } = req.params;
+    const { question_title, answers } = req.body;
+
+    // Step 2: Validate IDs
+    if (!mongoose.Types.ObjectId.isValid(quizId) || !mongoose.Types.ObjectId.isValid(questionId)) {
+      throw new BadRequestError('Invalid quiz or question ID.');
+    }
+
+    // Step 3: Check if the question belongs to the quiz
+    const quiz = await Quiz.findById(quizId).populate('quiz_questions');
+    if (!quiz) {
+      throw new NotFoundError('Quiz not found.');
+    }
+
+    const questionExistsInQuiz = quiz.quiz_questions.some(
+      (question) => question._id.toString() === questionId
+    );
+
+    if (!questionExistsInQuiz) {
+      throw new NotFoundError('Question does not belong to the specified quiz.');
+    }
+
+    // Step 4: Verify that the lecturer is associated with the course containing the quiz
+    const course = await Course.findOne({ quiz: quizId });
+    if (!course) {
+      throw new NotFoundError('Associated course not found.');
+    }
+
+    const lecturer = await Lecturer.findOne({ user: req.user.id, courses: course._id });
+    if (!lecturer) {
+      throw new ForbiddenError('Access denied. You are not associated with the course containing this quiz.');
+    }
+
+    // Step 5: Find the question and delete existing answers
+    const question = await QuizQuestion.findById(questionId);
+    if (!question) {
+      throw new NotFoundError('Question not found.');
+    }
+
+    // Delete all existing answers associated with this question
+    await QuizAnswer.deleteMany({ _id: { $in: question.quiz_answers } });
+
+    // Step 6: Update the question title
+    question.question_title = question_title;
+
+    // Step 7: Save new answers and associate them with the question
+    const updatedAnswers = [];
+    for (const answer of answers) {
+      const newAnswer = new QuizAnswer({
+        answer_text: answer.answer_text,
+        is_correct: answer.is_correct
+      });
+      await newAnswer.save();
+      updatedAnswers.push(newAnswer._id);
+    }
+   
+    // Update quiz question with new answers
+    question.quiz_answers = updatedAnswers;
+    
+    await question.save();
+
+    // Step 8: Send the response with the updated question and answers
+    res.status(200).json({
+      message: 'Question and answers updated successfully',
+      question: {
+        _id: question._id,
+        question_title: question.question_title,
+        quiz_answers: answers
+      },
     });
   } catch (error) {
     next(error);
