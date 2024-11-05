@@ -5,7 +5,10 @@ const courseSchema = new mongoose.Schema({
     description: String,
     start_day: Date,
     end_day: Date,
-    modules: [],
+    modules: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'module'
+    }],
     quiz: [
         {
             type: mongoose.Schema.Types.ObjectId,

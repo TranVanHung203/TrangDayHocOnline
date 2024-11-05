@@ -1,0 +1,46 @@
+{
+    "questions": [
+        {
+            "question_title": "What is the capital of France?",
+            "answers": [
+                {
+                    "answer_text": "Paris",
+                    "is_correct": true
+                },
+                {
+                    "answer_text": "London",
+                    "is_correct": false
+                },
+                {
+                    "answer_text": "Berlin",
+                    "is_correct": false
+                },
+                {
+                    "answer_text": "Madrid",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "question_title": "Which planet is known as the Red Planet?",
+            "answers": [
+                {
+                    "answer_text": "Mars",
+                    "is_correct": true
+                },
+                {
+                    "answer_text": "Earth",
+                    "is_correct": false
+                },
+                {
+                    "answer_text": "Venus",
+                    "is_correct": false
+                },
+                {
+                    "answer_text": "Jupiter",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}
