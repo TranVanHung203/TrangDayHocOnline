@@ -11,6 +11,10 @@ import ForbiddenError from '../errors/forbiddenError.js';
 import UnauthorizedError from '../errors/unauthorizedError.js';
 import BadRequestError from '../errors/badRequestError.js';
 
+
+
+
+
 export const getTimelineTest = async (req, res, next) => {
   const userId = req.user.id;
 
@@ -23,7 +27,11 @@ export const getTimelineTest = async (req, res, next) => {
       throw new BadRequestError('Invalid number of days provided. Please ensure it is a positive integer.');
     }
 
-    const now = new Date();
+    // Lấy thời gian hiện tại theo múi giờ Việt Nam (GMT+7)
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+    now.setHours(now.getHours() + 7);
+    
+
     const endDate = addDays(now, dayAsInteger);
 
     // Step 1: Find student's courses
@@ -40,11 +48,22 @@ export const getTimelineTest = async (req, res, next) => {
     const quizzes = [];
     courses.forEach(course => {
       course.quiz.forEach(quiz => {
-        if (quiz.end_deadline >= now && quiz.end_deadline <= endDate) {
+        const quizDeadline = new Date(quiz.end_deadline.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+        
+
+        if (quizDeadline >= now && quizDeadline <= endDate) {
+          // Tính toán thời gian còn lại đến deadline, bao gồm ngày, giờ, phút, giây
+          const timeDiff = quizDeadline - now;
+
+          const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
           quizzes.push({
             name: quiz.name,
             end_deadline: quiz.end_deadline,
-            days_remaining: Math.ceil((new Date(quiz.end_deadline) - now) / (1000 * 60 * 60 * 24)),
+            time_remaining: `${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`,
           });
         }
       });
@@ -60,6 +79,8 @@ export const getTimelineTest = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 
 
@@ -118,19 +139,19 @@ export const sendReminder = async (req, res) => {
 
 async function getExpiringAssignments(courseId, days) {
   const today = new Date();
-// Lấy thời gian hiện tại ở Việt Nam (UTC+7)
-const nowInVietnam = new Date(today.getTime() + 7 * 60 * 60 * 1000);
+  // Lấy thời gian hiện tại ở Việt Nam (UTC+7)
+  const nowInVietnam = new Date(today.getTime() + 7 * 60 * 60 * 1000);
 
-// Xác định thời điểm bắt đầu và kết thúc
-const startOfSearch = nowInVietnam; // Thời gian bắt đầu tìm kiếm
-const endOfSearch = new Date(nowInVietnam); // Thời gian kết thúc
-endOfSearch.setDate(nowInVietnam.getDate() + days); // Thêm số ngày vào ngày hiện tại
+  // Xác định thời điểm bắt đầu và kết thúc
+  const startOfSearch = nowInVietnam; // Thời gian bắt đầu tìm kiếm
+  const endOfSearch = new Date(nowInVietnam); // Thời gian kết thúc
+  endOfSearch.setDate(nowInVietnam.getDate() + days); // Thêm số ngày vào ngày hiện tại
 
-// Thay đổi giờ, phút, giây cho endOfSearch về cùng giờ với nowInVietnam
-endOfSearch.setHours(nowInVietnam.getHours(), nowInVietnam.getMinutes(), nowInVietnam.getSeconds(), nowInVietnam.getMilliseconds());
+  // Thay đổi giờ, phút, giây cho endOfSearch về cùng giờ với nowInVietnam
+  endOfSearch.setHours(nowInVietnam.getHours(), nowInVietnam.getMinutes(), nowInVietnam.getSeconds(), nowInVietnam.getMilliseconds());
 
-console.log("Start of Search:", startOfSearch.toISOString());
-console.log("End of Search:", endOfSearch.toISOString());
+  console.log("Start of Search:", startOfSearch.toISOString());
+  console.log("End of Search:", endOfSearch.toISOString());
 
 
   // Tìm khóa học và lọc các bài quiz gần đến hạn ngay trong truy vấn

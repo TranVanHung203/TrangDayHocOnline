@@ -18,7 +18,7 @@ router.get('/send-reminder/:courseId', sendReminder);
 
 
 // Cron job để gửi thông báo tự động
-cron.schedule('*/1 * * * *', async () => {
+cron.schedule('0 6 * * *', async ()  => {
     console.log('Chạy cron job để gửi thông báo tự động...');
 
     try {
