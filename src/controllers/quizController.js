@@ -95,19 +95,15 @@ export const deleteQuiz = async (req, res, next) => {
     try {
         const { quizId } = req.params;
 
-        // Check if the user is a lecturer
         if (req.user.role !== 'Lecturer') {
             throw new ForbiddenError('Only lecturers can delete quizzes.');
         }
 
-        // Find the course containing this quiz
         const course = await Course.findOne({ quiz: quizId });
-        console.log(course)
         if (!course) {
             throw new NotFoundError(`Course containing quiz ${quizId} not found.`);
         }
 
-        // Verify that the lecturer has permission to delete this quiz
         const lecturer = await Lecturer.findOne({
             user: req.user.id,
             courses: { $in: [course._id] },
@@ -116,28 +112,21 @@ export const deleteQuiz = async (req, res, next) => {
             throw new ForbiddenError('You do not have permission to delete this quiz.');
         }
 
-        // Find the quiz by ID and check if it exists
         const quiz = await Quiz.findById(quizId);
         if (!quiz) {
             throw new NotFoundError(`Quiz with ID ${quizId} not found.`);
         }
 
-        // Retrieve all questions associated with this quiz
         const questions = await QuizQuestion.find({ _id: { $in: quiz.quiz_questions } });
 
-        // Extract all answer IDs from each question's quiz_answers field
         const answerIds = questions.flatMap(question => question.quiz_answers);
 
-        // Delete all answers associated with the quiz questions
         await QuizAnswer.deleteMany({ _id: { $in: answerIds } });
 
-        // Delete the questions themselves
         await QuizQuestion.deleteMany({ _id: { $in: quiz.quiz_questions } });
 
-        // Delete the quiz
         await Quiz.findByIdAndDelete(quizId);
 
-        // Remove the quiz from the course's quizzes array
         await Course.findByIdAndUpdate(course._id, {
             $pull: { quiz: quizId }
         });
