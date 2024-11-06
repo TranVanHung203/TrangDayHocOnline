@@ -8,7 +8,7 @@ const jwtMiddleware = async (req, res, next) => {
       req.user.role = "Lecturer"
       next()
   } catch (err) {
-    return next(err); 
+    return next(err);
   }
 };
 

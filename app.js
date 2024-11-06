@@ -6,7 +6,7 @@ import quizzRoutes from './src/routes/quizzRoutes.js';
 import notifyRoutes from './src/routes/notifyRoutes.js'
 
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
-import jwtMiddleware from './src/middlewares/jwtMiddleware.js'
+import jwtMiddleware from './src/middlewares/jwtMiddleware.js';
 import { errorHandler } from './src/errors/errorHandler.js';
 
 

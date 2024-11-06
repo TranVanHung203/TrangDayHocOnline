@@ -34,4 +34,13 @@ router.get('/:courseId', getCourseById);
 
 router.delete('/modules/:moduleId', deleteModule);
 
+router.get('/students/:courseId', getCourseStudents);
+
+router.post('/quizzes/:courseId', createQuiz);
+
+router.get('/quizzes/:courseId', getAllQuizzes)
+
+
+
+
 export default router;
