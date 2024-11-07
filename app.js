@@ -1,39 +1,51 @@
 import express from 'express';
 import cors from 'cors';
-import homepageRoute from './src/routes/homepage.js';
+import cookieParser from "cookie-parser";
+
 import courseRoutes from './src/routes/courseRoutes.js';
-import updatecourse from './src/routes/updatecourse.js';
+import quizRoutes from './src/routes/quizRoutes.js';
+import notifyRoutes from './src/routes/notifyRoutes.js'
+import lessonRoutes from './src/routes/lessonRoutes.js';
+import apiRoutes from './src/routes/userApi.js';
+import adminApiRouter from './src/routes/adminApi.js';
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
+import { errorHandler } from './src/errors/errorHandler.js';
+
 
 const app = express();
 const databaseConfig = new DatabaseConfig(); // Tạo một thể hiện của lớp DatabaseConfig
 
-// Middleware để xử lý JSON
-app.use(express.json());
+app.use(cookieParser());
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 
 // Cấu hình CORS
 app.use(cors({
   origin: 'http://localhost:3000', // Đảm bảo địa chỉ này đúng
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Kết nối đến cơ sở dữ liệu
 databaseConfig.connect();
 
-// // Route API cho homepage
-// app.use('/api', homepageRoute);
+app.use('/v1/api', apiRoutes)
 
-// Route tạo khóa học
+app.use('/v1/api', adminApiRouter)
+
 app.use('/courses', courseRoutes);
 
+app.use('/quizzes/',quizRoutes);
 
-// app.use('/updatecourses', updatecourse);
+app.use('/notify',notifyRoutes);
 
-// // Định nghĩa route cho khóa học
-// app.use('/api', khoaHocRoute); // Sử dụng route khóa học
+app.use('/lessons', lessonRoutes);
 
-const PORT = process.env.PORT || 5000;
+app.use(errorHandler);
+
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

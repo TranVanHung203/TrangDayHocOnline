@@ -5,7 +5,6 @@ const lessonSchema = new mongoose.Schema({
     number: Number,
     document_url: String,
     lesson_details: String,
-    course_order: Number,
     type: String,
 
 });
