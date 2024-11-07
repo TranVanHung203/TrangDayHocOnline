@@ -8,7 +8,11 @@ import {
     sendReminder,
 } from '../controllers/notifyController.js';
 
+import { authToken } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
+
+router.all("*", authToken);
 
 router.get('/timeline/:day', getTimelineTest);
 

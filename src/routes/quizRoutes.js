@@ -11,8 +11,14 @@ import {
     updateQuestionandAnswer,
 } from '../controllers/quizController.js';
 
+import { authToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+router.all("*", authToken);
+
+
+
 
 
 
