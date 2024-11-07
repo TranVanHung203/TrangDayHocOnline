@@ -146,3 +146,9 @@ export {
     createUserController, loginUserController, changePasswordController,
     forgotPasswordController, resetPasswordController
 };
+
+export const logout = (req, res, next) => {
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    res.status(200).send()
+  }

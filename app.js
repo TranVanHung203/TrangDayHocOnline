@@ -1,21 +1,24 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from "cookie-parser";
 
 import courseRoutes from './src/routes/courseRoutes.js';
 import quizRoutes from './src/routes/quizRoutes.js';
 import notifyRoutes from './src/routes/notifyRoutes.js'
 import lessonRoutes from './src/routes/lessonRoutes.js';
-
+import apiRoutes from './src/routes/userApi.js';
+import adminApiRouter from './src/routes/adminApi.js';
 import DatabaseConfig from './src/config/databaseConfig.js'; // Nhập lớp kết nối cơ sở dữ liệu
-import jwtMiddleware from './src/middlewares/jwtMiddleware.js';
 import { errorHandler } from './src/errors/errorHandler.js';
 
 
 const app = express();
 const databaseConfig = new DatabaseConfig(); // Tạo một thể hiện của lớp DatabaseConfig
 
-// Middleware để xử lý JSON
-app.use(express.json());
+app.use(cookieParser());
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 
 // Cấu hình CORS
 app.use(cors({
@@ -27,8 +30,9 @@ app.use(cors({
 // Kết nối đến cơ sở dữ liệu
 databaseConfig.connect();
 
+app.use('/v1/api', apiRoutes)
 
-app.use(jwtMiddleware);
+app.use('/v1/api', adminApiRouter)
 
 app.use('/courses', courseRoutes);
 

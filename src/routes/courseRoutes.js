@@ -15,7 +15,11 @@ import {
     getAllQuizzes,
 } from '../controllers/courseController.js'; // Nhập các controller
 
+import { authToken } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
+
+router.all("*", authToken);
 
 //http://localhost:5000/courses/?page=1&limit=5
 // Lấy thông tin các khóa học theo ID người dùng
