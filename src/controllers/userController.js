@@ -2,19 +2,33 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 const saltRounds = 10;
 import User from '../models/user.schema.js'
+import Student from '../models/student.schema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 
 const createUserController = async (req, res) => {
-    const { name, email, password } = req.body;
-    // hash password
-    const hashPassword = await bcrypt.hash(password, saltRounds);
-    //save password
-    const data = await User.create({ name, email, password: hashPassword, role: 'user' });
-    return res.status(200).json(data)
+    try {
+        const { name, email, password } = req.body;
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create a new user
+        const user = await User.create({ name, email, password: hashedPassword, role: 'Student' });
+
+        // Create a new student referencing the newly created user
+        const student = await Student.create({ user: user._id, courses: [] });
+
+        // Respond with both user and student data
+        return res.status(200).json("Tạo tài khoản thành công");
+    } catch (error) {
+        console.error("Error creating user and student:", error);
+        return res.status(500).json({ error: "An error occurred while creating the user and student" });
+    }
 }
+
 
 const loginUserController = async (req, res) => {
     const { email, password } = req.body;

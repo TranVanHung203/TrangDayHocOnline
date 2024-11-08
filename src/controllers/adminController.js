@@ -1,40 +1,105 @@
 import User from "../models/user.schema.js";
-
+import Lecturer from "../models/lecturer.schema.js";
+import Student from "../models/student.schema.js";
 const updateUserController = async (req, res) => {
     const { name, email, role } = req.body;
-    try {
-        const data = await User.findOneAndUpdate({ email: email }, {
-            name: name,
-            role: role
-        });
-        return res.status(200).json(data)
-    } catch (error) {
-        console.log(error);
-        return res.status(200).json(error.name);
+
+    // Kiểm tra quyền Admin
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
     }
-}
+
+    try {
+        // Tìm người dùng theo email
+        const user = await User.findOneAndUpdate({ email: email }, { name, role });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Cập nhật bảng liên quan dựa trên role mới
+        if (role === "Student") {
+            // Thêm người dùng vào bảng Student nếu chưa có
+            await Student.findOneAndUpdate(
+                { user: user._id },
+                { user: user._id },
+                { upsert: true, new: true }
+            );
+            // Xóa người dùng khỏi bảng Lecturer nếu có
+            await Lecturer.deleteOne({ user: user._id });
+        } else if (role === "Lecturer") {
+            // Thêm người dùng vào bảng Lecturer nếu chưa có
+            await Lecturer.findOneAndUpdate(
+                { user: user._id },
+                { user: user._id },
+                { upsert: true, new: true }
+            );
+            // Xóa người dùng khỏi bảng Student nếu có
+            await Student.deleteOne({ user: user._id });
+        } else if (role === "Admin") {
+            // Xóa người dùng khỏi cả hai bảng Student và Lecturer
+            await Student.deleteOne({ user: user._id });
+            await Lecturer.deleteOne({ user: user._id });
+        }
+
+        return res.status(200).json({ message: "User updated successfully." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+};
 
 const deleteUserController = async (req, res) => {
     const idUser = req.params.iduser;
+
+    // Kiểm tra quyền Admin
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+
     try {
-        const data = await User.deleteOne({ _id: idUser });
-        return res.status(200).json(data);
+        // Tìm người dùng để lấy role trước khi xóa
+        const user = await User.findById(idUser);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        // Xóa khỏi bảng tương ứng dựa trên role
+        if (user.role === "Student") {
+            await Student.deleteOne({ user: idUser });
+        } else if (user.role === "Lecturer") {
+            await Lecturer.deleteOne({ user: idUser });
+        }
+
+        // Xóa người dùng khỏi bảng User
+        const deleteUserResult = await User.deleteOne({ _id: idUser });
+
+
+
+        return res.status(200).json({ message: "User and related records deleted successfully." });
     } catch (error) {
         console.log(error);
-        return res.status(200).json(error.name);
+        return res.status(500).json({ message: error.message });
     }
-}
+};
+
 
 const getAllUserController = async (req, res) => {
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
     const data = await User.find({});
     return res.status(200).json(data);
 }
 
 const getUserController = async (req, res) => {
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
     const idUser = req.params.iduser;
     const data = await User.find({ _id: idUser });
     return res.status(200).json(data);
 }
+
+
 
 export {
     updateUserController, deleteUserController, getAllUserController,

@@ -7,9 +7,9 @@ const adminApiRouter = express.Router();
 
 adminApiRouter.all("*", authToken);
 
-adminApiRouter.post("/update-user", updateUserController);
-adminApiRouter.delete("/delete-user/:iduser", deleteUserController);
-adminApiRouter.get("/user", getAllUserController);
-adminApiRouter.get("/user/:iduser", getUserController);
+adminApiRouter.patch("/", updateUserController);
+adminApiRouter.delete("/:iduser", deleteUserController);
+adminApiRouter.get("/", getAllUserController);
+adminApiRouter.get("/:iduser", getUserController);
 
 export default adminApiRouter;
