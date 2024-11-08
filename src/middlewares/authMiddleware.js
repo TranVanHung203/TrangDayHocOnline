@@ -5,7 +5,7 @@ import 'dotenv/config';
 const authToken = (req, res, next) => {
     const white_lists = ["/", "/register", "/login", "/forgot-password", "/reset-password"];
 
-    if (white_lists.find(item => '/v1/api' + item === req.originalUrl)) {
+    if (white_lists.find(item => '' + item === req.originalUrl)) {
         next();
     }
     else if (req?.cookies?.access_token) {
