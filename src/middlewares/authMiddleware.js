@@ -57,13 +57,13 @@ const authToken = (req, res, next) => {
                 }
                 else {
                     return res.status(401).json({
-                        message: "Token không hợp lệ"
+                        message: "Không có refresh"
                     })
                 }
             }
             else {
                 return res.status(401).json({
-                    message: "Token không hợp lệ"
+                    message: "Token hết hạn"
                 })
             }
         }
@@ -72,7 +72,7 @@ const authToken = (req, res, next) => {
     else {
         // return exception
         return res.status(401).json({
-            message: "Token không hợp lệ"
+            message: "Không tìm thấy token"
         })
     }
 }

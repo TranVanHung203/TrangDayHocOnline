@@ -528,7 +528,7 @@ export const submitQuiz = async (req, res, next) => {
       }
   
       const { quizId } = req.params;
-      const { name, min_pass_score, start_deadline, end_deadline } = req.body;
+      const { name,number, min_pass_score, start_deadline, end_deadline} = req.body;
   
       // Step 2: Validate the quiz ID
       if (!mongoose.Types.ObjectId.isValid(quizId)) {
@@ -547,11 +547,10 @@ export const submitQuiz = async (req, res, next) => {
         throw new ForbiddenError('Access denied. You are not associated with this course.');
       }
    
-  
       // Step 5: Update the quiz fields
       const updatedQuiz = await Quiz.findByIdAndUpdate(
         quizId,
-        { name, min_pass_score, start_deadline, end_deadline },
+        { name,number,min_pass_score, start_deadline, end_deadline },
         { new: true, runValidators: true }
       );
   

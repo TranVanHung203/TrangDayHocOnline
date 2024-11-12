@@ -63,7 +63,8 @@ const loginUserController = async (req, res) => {
             return res.status(200).json({
                 user: {
                     email: email,
-                    name: user.name
+                    name: user.name,
+                    access_token,refresh_token,
                 }
             })
         }

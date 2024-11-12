@@ -28,6 +28,7 @@ import path from 'path';
 export const getCoursesByUserId = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const role = req.user.role;
     const objectId = new mongoose.Types.ObjectId(userId);
 
     const { page = 1, limit = 9 } = req.query; // Default pagination values
@@ -70,6 +71,7 @@ export const getCoursesByUserId = async (req, res, next) => {
         currentPage: page,
         totalPages: Math.ceil(totalCourses / parsedLimit),
         courses,
+        role
       });
     }
 
