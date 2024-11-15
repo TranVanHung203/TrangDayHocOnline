@@ -410,16 +410,17 @@ export const submitQuiz = async (req, res, next) => {
       // Khởi tạo các biến để lưu điểm và thời gian
       let score = null;
       let attemptTime = null;
-  
+      console.log(student._id)
       // Tìm vị trí của student trong mảng students của quiz
       const studentIndex = quiz.students.findIndex(s => s._id.toString() === student._id.toString());
-  
+      console.log(studentIndex) 
       // Nếu tìm thấy học sinh trong quiz, lấy điểm và thời gian
       if (studentIndex !== -1) {
-        score = quiz.score_achieved[studentIndex] || null;
+        score = quiz.score_achieved[studentIndex] ;
         attemptTime = quiz.attempt_datetime[studentIndex] || null;
       }
-  
+      console.log(quiz.score_achieved[studentIndex])
+      console.log(score,attemptTime)
       // Lấy các thông tin cơ bản
       const quizInfo = {
         name: quiz.name,
@@ -462,6 +463,7 @@ export const submitQuiz = async (req, res, next) => {
       if (!quiz) {
         throw new NotFoundError(`Quiz with ID ${quizId} not found`);
       }
+      
   
       // Tìm khóa học chứa quiz, sử dụng quizId dưới dạng chuỗi
       const coursesWithQuiz = await Course.find({ quiz: quizId });
@@ -473,11 +475,17 @@ export const submitQuiz = async (req, res, next) => {
       if (!hasAccessToCourse) {
         throw new ForbiddenError(`Student does not have access to this quiz`);
       }
-  
+      // Step 5: Check if the student has already submitted this quiz
+      const hasSubmitted = quiz.students.some(s => s.toString() === student._id.toString());
+      if (hasSubmitted) {
+        throw new ForbiddenError('Bạn đã làm bài này rồi');
+      }
       // Kiểm tra thời hạn của bài kiểm tra
       const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
-      now.setHours(now.getHours() + 7);
-   
+      now.setHours(now.getHours() +7);
+      console.log(now)
+      console.log(quiz.end_deadline)
+      console.log(quiz.start_deadline)
       if (quiz.start_deadline > now || quiz.end_deadline < now) {
         throw new ForbiddenError('Quiz not available at this time');
       }
@@ -506,6 +514,7 @@ export const submitQuiz = async (req, res, next) => {
       res.status(200).json({
         name: quiz.name,
         questions: questionDetails,
+        number: quiz.number,
         min_pass_score: quiz.min_pass_score,
         start_deadline: quiz.start_deadline,
         end_deadline: quiz.end_deadline,

@@ -19,9 +19,9 @@ export const getTimelineTest = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
-    // Parse and validate `days` parameter
-    const parsedDays = req.params;
-    const dayAsInteger = parseInt(parsedDays.day, 10);
+    // Lấy và validate tham số `days` từ query string
+    const parsedDays = req.query.days ? parseInt(req.query.days) : 2;
+    const dayAsInteger = parseInt(parsedDays, 10);
 
     if (isNaN(dayAsInteger) || dayAsInteger < 1) {
       throw new BadRequestError('Invalid number of days provided. Please ensure it is a positive integer.');
@@ -30,7 +30,6 @@ export const getTimelineTest = async (req, res, next) => {
     // Lấy thời gian hiện tại theo múi giờ Việt Nam (GMT+7)
     const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
     now.setHours(now.getHours() + 7);
-    
 
     const endDate = addDays(now, dayAsInteger);
 
@@ -49,7 +48,6 @@ export const getTimelineTest = async (req, res, next) => {
     courses.forEach(course => {
       course.quiz.forEach(quiz => {
         const quizDeadline = new Date(quiz.end_deadline.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
-        
 
         if (quizDeadline >= now && quizDeadline <= endDate) {
           // Tính toán thời gian còn lại đến deadline, bao gồm ngày, giờ, phút, giây
@@ -61,7 +59,9 @@ export const getTimelineTest = async (req, res, next) => {
           const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
           quizzes.push({
+            id: quiz._id,
             name: quiz.name,
+            start_deadline: quiz.start_deadline,
             end_deadline: quiz.end_deadline,
             time_remaining: `${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`,
           });
@@ -69,17 +69,25 @@ export const getTimelineTest = async (req, res, next) => {
       });
     });
 
-    // Step 4: Send the response with quizzes found
+    // Step 4: Phân trang cho danh sách quizzes với tùy chỉnh limit
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 9, 9); // Giới hạn tối đa là 9
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedQuizzes = quizzes.slice(startIndex, endIndex);
+
+    // Step 5: Trả về kết quả với quizzes được phân trang
     res.status(200).json({
-      quizzes,
+      quizzes: paginatedQuizzes,
       message: `Found ${quizzes.length} upcoming quizzes within the next ${dayAsInteger} days.`,
+      currentPage: page,
+      totalPages: Math.ceil(quizzes.length / limit),
     });
   } catch (error) {
     // Pass the custom error to the error-handling middleware
     next(error);
   }
 };
-
 
 
 
