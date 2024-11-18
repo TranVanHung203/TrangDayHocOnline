@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 
 
 import BadRequestError from '../errors/badRequestError.js';
+import fs from 'fs/promises';
 import path from 'path';
 
 
@@ -352,11 +353,22 @@ export const deleteLesson = async (req, res, next) => {
     // Kiểm tra xem giảng viên có quyền xóa lesson này không
     const lecturer = await Lecturer.findOne({
       user: req.user.id,
-      courses: { $in: [course._id] } // Kiểm tra giảng viên có thuộc khóa học chứa module này không
+      courses: { $in: [course._id] }
     });
 
     if (!lecturer) {
       throw new ForbiddenError('You do not have permission to delete this lesson.');
+    }
+
+    // Xóa file liên quan trong thư mục uploads nếu có
+    if (lesson.document_url) {
+      const filePath = path.resolve('uploads', path.basename(lesson.document_url));
+      try {
+        await fs.unlink(filePath); // Xóa file
+        console.log(`File deleted: ${filePath}`);
+      } catch (err) {
+        console.warn(`Failed to delete file: ${filePath}. Error: ${err.message}`);
+      }
     }
 
     // Xóa lesson
@@ -364,7 +376,7 @@ export const deleteLesson = async (req, res, next) => {
 
     // Cập nhật module để loại bỏ lesson đã xóa
     await Module.findByIdAndUpdate(module._id, {
-      $pull: { lessons: lessonId } // Loại bỏ lesson khỏi module
+      $pull: { lessons: lessonId }
     });
 
     res.status(200).json({ message: `Lesson with id ${lessonId} has been deleted` });
@@ -409,6 +421,54 @@ export const createModule = async (req, res, next) => {
     });
 
     res.status(201).json({ message: 'Module created successfully', module: savedModule });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateModule = async (req, res, next) => {
+  const { moduleId } = req.params; // Lấy moduleId từ params
+  const { name } = req.body; // Lấy tên mới từ body
+
+  try {
+    // Step 1: Kiểm tra vai trò của người dùng
+    if (req.user.role !== 'Lecturer') {
+      throw new ForbiddenError('Access denied. Only lecturers can update modules.');
+    }
+
+    // Step 2: Validate the module ID
+    if (!mongoose.Types.ObjectId.isValid(moduleId)) {
+      throw new BadRequestError('Invalid module ID.');
+    }
+
+    // Step 3: Tìm khóa học chứa module này
+    const course = await Course.findOne({ modules: moduleId });
+    if (!course) {
+      throw new NotFoundError('Module or associated course not found.');
+    }
+
+    // Step 4: Kiểm tra quyền giảng viên với khóa học
+    const lecturer = await Lecturer.findOne({ user: req.user.id, courses: course._id });
+    if (!lecturer) {
+      throw new ForbiddenError('Access denied. You are not associated with this course.');
+    }
+
+    // Step 5: Cập nhật module
+    const updatedModule = await Module.findByIdAndUpdate(
+      moduleId,
+      { name }, // Chỉ cập nhật tên
+      { new: true, runValidators: true } // Trả về module đã cập nhật
+    );
+
+    if (!updatedModule) {
+      throw new NotFoundError('Module not found.');
+    }
+
+    // Step 6: Gửi module đã được cập nhật về client
+    res.status(200).json({
+      message: 'Module updated successfully',
+      module: updatedModule,
+    });
   } catch (error) {
     next(error);
   }
