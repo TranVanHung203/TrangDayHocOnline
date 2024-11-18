@@ -37,25 +37,26 @@ router.get('/updateview/:courseId', getCourseToUpdate);
 
 
 // // Lấy thông tin một khóa học theo ID khóa học
-router.get('/:courseId', getCourseById);
+router.get('/:courseId', getCourseById);//rồi
 
 
-router.post('/modules/:courseId', createModule);
-router.delete('/modules/:moduleId', deleteModule);
+router.post('/modules/:courseId', createModule);//rồi
+router.delete('/modules/:moduleId', deleteModule);//rồi
 
 
 router.patch('/modules/:moduleId', updateModule);
 
+router.post('/lessons/:moduleId', upload.single('file'), createLesson);//rồi
 
-router.post('/lessons/:moduleId', upload.single('file'), createLesson);
+router.delete('/lessons/:lessonId', deleteLesson);//rồi
 
 
 
-
+router.get('/students/:courseId', getCourseStudents);//rồi
 
 router.post('/quizzes/:courseId', createQuiz);
 
-router.get('/quizzes/:courseId', getAllQuizzes)
+router.get('/quizzes/:courseId', getAllQuizzes)//không biết có sài hay k
 
 
 
