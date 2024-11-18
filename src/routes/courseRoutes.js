@@ -4,7 +4,6 @@ import {
     createCourse,
     getCoursesByUserId,
     updateCourse,
-    getCourseToUpdate,
     getCourseById,
     deleteModule,
     deleteLesson,
@@ -32,14 +31,14 @@ router.post('/', createCourse);
 
 router.patch('/:courseId', updateCourse);
 
-
+router.delete('/lessons/:lessonId', deleteLesson);
 
 
 
 // // Lấy thông tin một khóa học theo ID khóa học
 router.get('/:courseId', getCourseById);
 
-
+router.get('/students/:courseId', getCourseStudents);
 router.post('/modules/:courseId', createModule);
 router.delete('/modules/:moduleId', deleteModule);
 
