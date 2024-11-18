@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from "cookie-parser";
 
 import courseRoutes from './src/routes/courseRoutes.js';
+import updateView from './src/routes/updateViewRoutes.js';
 import quizRoutes from './src/routes/quizRoutes.js';
 import notifyRoutes from './src/routes/notifyRoutes.js'
 import lessonRoutes from './src/routes/lessonRoutes.js';

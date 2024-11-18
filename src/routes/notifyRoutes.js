@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.all("*", authToken);
 
-router.get('/timeline/:day', getTimelineTest);
+router.get('/timeline', getTimelineTest);
 
 //http://localhost:5000/notify/send-reminder/67285d33a6ab2a9f4a03d9be?days=3
 router.get('/send-reminder/:courseId', sendReminder);

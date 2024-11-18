@@ -64,7 +64,7 @@ const loginUserController = async (req, res) => {
                 user: {
                     email: email,
                     name: user.name,
-                    access_token,refresh_token,
+                    access_token, refresh_token,
                 }
             })
         }
@@ -166,4 +166,23 @@ export const logout = (req, res, next) => {
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");
     res.status(200).send()
-  }
+}
+
+export const getUserRole = async (req, res) => {
+    try {
+        const userId = req.user.id; // ID của người dùng đã đăng nhập từ req.user
+
+        // Tìm người dùng theo userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+        }
+
+        // Trả về role của người dùng
+        return res.json({ role: user.role });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi lấy role người dùng' });
+    }
+};

@@ -72,7 +72,7 @@ const authToken = (req, res, next) => {
     else {
         // return exception
         return res.status(401).json({
-            message: "Không tìm thấy token"
+            message: "Không tìm thấy 5token"
         })
     }
 }

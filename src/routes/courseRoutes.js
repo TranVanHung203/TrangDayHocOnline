@@ -4,7 +4,6 @@ import {
     createCourse,
     getCoursesByUserId,
     updateCourse,
-    getCourseToUpdate,
     getCourseById,
     deleteModule,
     deleteLesson,
@@ -32,7 +31,7 @@ router.post('/', createCourse);
 
 router.patch('/:courseId', updateCourse);
 
-router.get('/updateview/:courseId', getCourseToUpdate);
+router.delete('/lessons/:lessonId', deleteLesson);
 
 
 

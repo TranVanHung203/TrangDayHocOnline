@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     changePasswordController, createUserController, forgotPasswordController,
-    loginUserController, resetPasswordController,logout
+    loginUserController, resetPasswordController,logout,getUserRole
 } from '../controllers/userController.js';
 import { authToken } from '../middlewares/authMiddleware.js';
 
@@ -15,7 +15,7 @@ apiRouter.get('/logout', logout);
 apiRouter.put("/change-password", changePasswordController);
 apiRouter.post('/forgot-password', forgotPasswordController);
 apiRouter.put('/reset-password', resetPasswordController);
-
+apiRouter.get('/getRole', getUserRole);
 apiRouter.get("/test", (req, res) => {
     return res.status(200).json("hello");
 });
