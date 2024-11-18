@@ -31,7 +31,7 @@ router.post('/', createCourse);
 
 router.patch('/:courseId', updateCourse);
 
-router.get('/updateview/:courseId', getCourseToUpdate);
+
 
 
 

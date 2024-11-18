@@ -660,3 +660,79 @@ export const submitQuiz = async (req, res, next) => {
       next(error);
     }
   };
+
+
+  export const getQuestionAndAnswer = async (req, res) => {
+    try {
+        const { quizId } = req.params;
+        const userId = req.user.id; // ID người dùng hiện tại từ token hoặc session
+        
+        // Lấy thông tin phân trang từ query params (mặc định là trang 1 và giới hạn 3 items mỗi trang)
+        const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
+        const limit = parseInt(req.query.limit) || 3; // Số lượng item mỗi trang, mặc định là 3
+
+        // Tính toán skip và limit cho phân trang
+        const skip = (page - 1) * limit;
+
+        // Tìm quiz với quizId
+        const quiz = await Quiz.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz không tồn tại!' });
+        }
+
+        // Bước 2: Tìm giảng viên của người dùng hiện tại
+        const lecturer = await Lecturer.findOne({ user: userId });
+        if (!lecturer) {
+            return res.status(404).json({ message: 'Giảng viên không tồn tại!' });
+        }
+
+        // Bước 3: Kiểm tra xem giảng viên có khóa học chứa quiz này không
+        const course = await Course.findOne({ quiz: quizId });
+        if (!course) {
+            return res.status(404).json({ message: 'Không tìm thấy khóa học chứa quiz này!' });
+        }
+
+        // Kiểm tra xem giảng viên có phải là giảng viên của khóa học chứa quiz này không
+        if (!lecturer.courses.includes(course._id)) {
+            return res.status(403).json({ message: 'Bạn không phải là giảng viên của khóa học này!' });
+        }
+
+        // Bước 4: Lấy các câu hỏi của quiz và phân trang
+        const quizQuestions = await QuizQuestion.find({ _id: { $in: quiz.quiz_questions } })
+            .skip(skip) // Bỏ qua số lượng câu hỏi đã hiển thị trước đó
+            .limit(limit) // Giới hạn số lượng câu hỏi mỗi trang
+            .populate({
+                path: 'quiz_answers',
+                model: 'quiz_answer',
+                select: 'answer_text is_correct'
+            });
+
+        // Bước 5: Trả về câu hỏi và câu trả lời
+        const result = quizQuestions.map(question => ({
+            question_id:question._id,
+            question_title: question.question_title,
+            answers: question.quiz_answers.map(answer => ({
+                answer_text: answer.answer_text,
+                is_correct: answer.is_correct
+            }))
+        }));
+
+        // Lấy tổng số câu hỏi để tính số trang
+        const totalQuestions = await QuizQuestion.countDocuments({ _id: { $in: quiz.quiz_questions } });
+
+        // Tính toán tổng số trang
+        const totalPages = Math.ceil(totalQuestions / limit);
+
+        // Trả về kết quả phân trang
+        return res.json({
+            quizId,
+            questions: result,
+            page,
+            totalPages,
+            totalQuestions
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi lấy câu hỏi và câu trả lời' });
+    }
+};
