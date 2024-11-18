@@ -515,6 +515,23 @@ export const updateQuiz = async (req, res, next) => {
     const { quizId } = req.params;
     const { name, number, min_pass_score, start_deadline, end_deadline } = req.body;
 
+
+    // Hàm để cộng thêm 7 giờ vào thời gian
+    const addHours = (dateString, hoursToAdd) => {
+      const date = new Date(dateString);  // Chuyển đổi chuỗi ISO thành Date object
+      date.setHours(date.getHours() + hoursToAdd);  // Cộng thêm số giờ vào thời gian
+      return date.toISOString();  // Trả về chuỗi ISO sau khi cộng giờ
+    };
+
+    // Cộng 7 giờ vào start_deadline và end_deadline
+    const updatedStartDeadline = addHours(start_deadline, 7);
+    const updatedEndDeadline = addHours(end_deadline, 7);
+
+
+
+    // Thực hiện các bước xử lý tiếp theo với updatedQuiz, ví dụ lưu vào database
+
+
     // Step 2: Validate the quiz ID
     if (!mongoose.Types.ObjectId.isValid(quizId)) {
       throw new BadRequestError('Invalid quiz ID.');
@@ -535,7 +552,10 @@ export const updateQuiz = async (req, res, next) => {
     // Step 5: Update the quiz fields
     const updatedQuiz = await Quiz.findByIdAndUpdate(
       quizId,
-      { name, number, min_pass_score, start_deadline, end_deadline },
+      {
+        name, number, min_pass_score, start_deadline: updatedStartDeadline,
+        end_deadline: updatedEndDeadline,
+      },
       { new: true, runValidators: true }
     );
 
