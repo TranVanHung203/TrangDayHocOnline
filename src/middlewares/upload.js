@@ -11,12 +11,9 @@ const storage = multer.diskStorage({
     }
 });
 
-// Tạo middleware upload và thêm giới hạn dung lượng
 const upload = multer({
     storage,
-    limits: {
-        fileSize: 10 * 1024 * 1024 // Giới hạn dung lượng tệp lên đến 10MB
-    }
+    limits: { fileSize: 50 * 1024 * 1024 } // Giới hạn dung lượng file tối đa 50MB
 });
 
 // Export middleware để sử dụng trong các route

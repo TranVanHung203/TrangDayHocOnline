@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middlewares/upload.js';
-import { 
+import {
     createCourse,
     getCoursesByUserId,
     updateCourse,
@@ -13,6 +13,7 @@ import {
     getCourseStudents,
     createQuiz,
     getAllQuizzes,
+    updateModule
 } from '../controllers/courseController.js'; // Nhập các controller
 
 import { authToken } from '../middlewares/authMiddleware.js';
@@ -43,15 +44,14 @@ router.post('/modules/:courseId', createModule);
 router.delete('/modules/:moduleId', deleteModule);
 
 
+router.patch('/modules/:moduleId', updateModule);
 
 
 router.post('/lessons/:moduleId', upload.single('file'), createLesson);
 
-router.delete('/lessons/:lessonId', deleteLesson);
 
 
 
-router.get('/students/:courseId', getCourseStudents);
 
 router.post('/quizzes/:courseId', createQuiz);
 
