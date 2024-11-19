@@ -42,7 +42,7 @@ app.use('/quizzes', quizRoutes);
 app.use('/notify', notifyRoutes);
 
 app.use('/lessons', lessonRoutes);
-
+app.use('/updateview', updateView);
 app.use(errorHandler);
 
 

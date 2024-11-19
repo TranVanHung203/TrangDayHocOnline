@@ -537,7 +537,7 @@ export const getCourseStudents = async (req, res, next) => {
 
     // Lấy `page` và `limit` từ query string, mặc định là trang 1 và 10 sinh viên mỗi trang
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 15;
 
     // Tính toán skip (số lượng bản ghi cần bỏ qua)
     const skip = (page - 1) * limit;
