@@ -37,14 +37,12 @@ app.use('/admin', adminApiRouter)
 
 app.use('/courses', courseRoutes);
 
-app.use('/updateview', updateView);
+app.use('/quizzes', quizRoutes);
 
-app.use('/quizzes',quizRoutes);
-
-app.use('/notify',notifyRoutes);
+app.use('/notify', notifyRoutes);
 
 app.use('/lessons', lessonRoutes);
-
+app.use('/updateview', updateView);
 app.use(errorHandler);
 
 

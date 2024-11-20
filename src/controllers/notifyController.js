@@ -99,7 +99,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: '21110889@student.hcmute.edu.vn',
-    pass: 'Hung1110@@@@', // Thay bằng mật khẩu của bạn
+    pass: 'Hung1110@@@@@', // Thay bằng mật khẩu của bạn
   }
 });
 
@@ -139,7 +139,7 @@ export const sendReminder = async (req, res) => {
       }
     }));
 
-    res.send('Reminders sent successfully!');
+    res.json({ message: 'Reminders sent successfully!' });
   } catch (error) {
     res.status(500).send('Error in sending reminders');
   }

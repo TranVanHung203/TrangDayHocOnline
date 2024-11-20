@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.all("*", authToken);
 
-router.get('/:lessonId', getLesson); // Lấy thông tin bài học
+router.get('/:lessonId', getLesson); // Lấy thông tin bài học chua biết có sài hay k
 
 router.get('/download/:lessonId', downloadLessonFile); // Download file bài học
 
