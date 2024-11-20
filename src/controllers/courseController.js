@@ -236,18 +236,29 @@ export const getCourseToUpdate = async (req, res, next) => {
 export const getCourseById = async (req, res, next) => {
   try {
     const courseId = req.params.courseId;
-    if (req.user.role !== 'Lecturer') {
-      throw new ForbiddenError('Only lecturers are allowed to view courses.');
+    if (req.user.role == "Lecturer") {
+      const lecturer = await Lecturer.findOne({
+        user: req.user.id,
+        courses: courseId,
+      });
+
+      if (!lecturer) {
+        throw new ForbiddenError('You do not have permission to view this course.');
+      }
+
+    } else if (req.user.role == "student") {
+      const student = await Student.findOne({
+        user: req.user.id,
+        courses: courseId,
+      });
+      if (!student) {
+        throw new ForbiddenError('You do not have permission to view this course.');
+      }
     }
-
-    const lecturer = await Lecturer.findOne({
-      user: req.user.id,
-      courses: courseId,
-    });
-
-    if (!lecturer) {
+    else {
       throw new ForbiddenError('You do not have permission to view this course.');
     }
+
     const course = await Course.findById(req.params.courseId)
       .populate({
         path: 'modules',
@@ -630,6 +641,73 @@ export const getAllQuizzes = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
+export const getQuizzesForStudent = async (req, res, next) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // Tìm student theo userId
+    const student = await Student.findOne({ user: userId });
+
+    if (!student) {
+      throw new NotFoundError(`Student not found for user ID ${userId}`);
+    }
+
+    // Tìm course theo courseId
+    const course = await Course.findById(courseId).populate('quiz');
+
+    if (!course) {
+      throw new NotFoundError(`Course with ID ${courseId} not found`);
+    }
+
+    // Kiểm tra xem student có thuộc course hay không
+    const isEnrolledInCourse = student.courses.includes(course._id);
+
+    if (!isEnrolledInCourse) {
+      throw new ForbiddenError(`Student does not have access to this course`);
+    }
+
+    // Lọc danh sách quiz chỉ giữ các quiz mà student tham gia
+    const quizzesForStudent = course.quiz.filter(quiz =>
+      quiz.students.some(studentId => studentId.toString() === student._id.toString())
+    );
+
+    // Trả về danh sách quiz, lấy thông tin điểm và thời gian từ vị trí student
+    const quizDetails = quizzesForStudent.map(quiz => {
+      // Tìm vị trí của student trong mảng students
+      const studentIndex = quiz.students.findIndex(
+        studentId => studentId.toString() === student._id.toString()
+      );
+
+      // Nếu tìm thấy student, lấy thông tin điểm và thời gian làm bài
+      const diem = studentIndex !== -1 ? quiz.score_achieved[studentIndex] : null;
+      const thoigianlambai = studentIndex !== -1 ? quiz.attempt_datetime[studentIndex] : null;
+
+      return {
+        id: quiz._id,
+        name: quiz.name,
+        number: quiz.number,
+        min_pass_score: quiz.min_pass_score,
+        start_deadline: quiz.start_deadline,
+        end_deadline: quiz.end_deadline,
+        thoigianlambai,
+        diem,
+      };
+    });
+
+    res.status(200).json({
+      studentId: student._id,
+      courseId,
+      quizzes: quizDetails,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 
