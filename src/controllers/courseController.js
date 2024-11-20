@@ -236,18 +236,30 @@ export const getCourseToUpdate = async (req, res, next) => {
 export const getCourseById = async (req, res, next) => {
   try {
     const courseId = req.params.courseId;
-    if (req.user.role !== 'Lecturer') {
-      throw new ForbiddenError('Only lecturers are allowed to view courses.');
+    if(req.user.role=="Lecturer"){
+      const lecturer = await Lecturer.findOne({
+        user: req.user.id,
+        courses: courseId,
+      });
+      
+      if (!lecturer) {
+        throw new ForbiddenError('You do not have permission to view this course.');
+      }
+
+    }else if(req.user.role=="student")
+    {
+      const student = await Student.findOne({
+        user: req.user.id,
+        courses: courseId,
+      });
+      if (!student) {
+        throw new ForbiddenError('You do not have permission to view this course.');
+      }
     }
-
-    const lecturer = await Lecturer.findOne({
-      user: req.user.id,
-      courses: courseId,
-    });
-
-    if (!lecturer) {
+    else{
       throw new ForbiddenError('You do not have permission to view this course.');
     }
+    
     const course = await Course.findById(req.params.courseId)
       .populate({
         path: 'modules',

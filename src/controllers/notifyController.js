@@ -118,7 +118,7 @@ const sendEmail = async (assignment) => {
 // Controller để gửi thông báo
 export const sendReminder = async (req, res) => {
   const { courseId } = req.params;
-  const days = req.query.days ? parseInt(req.query.days) : 2;  // Nhận số ngày từ query hoặc mặc định là 2
+  const days = req.query.days ? parseInt(req.query.days) : 7;  // Nhận số ngày từ query hoặc mặc định là 
 
   try {
     console.log(days)
@@ -126,7 +126,8 @@ export const sendReminder = async (req, res) => {
     const expiringAssignments = await getExpiringAssignments(courseId, days);
 
     if (expiringAssignments.length === 0) {
-      return res.send('No expiring assignments found.');
+      res.json({ message: 'No assignments are expiring within the next 7 days.' });
+      return
     }
 
     // Sử dụng Promise.all để gửi email cho tất cả các bài tập gần hết hạn
