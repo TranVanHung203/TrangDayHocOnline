@@ -1,12 +1,16 @@
 import express from 'express';
 
 import { authToken } from '../middlewares/authMiddleware.js';
-import { deleteUserController, getAllUserController, getUserController, updateUserController } from '../controllers/adminController.js';
+import {
+    createLecturerController, deleteUserController, getAllUserController,
+    getUserController, updateUserController
+} from '../controllers/adminController.js';
 
 const adminApiRouter = express.Router();
 
 adminApiRouter.all("*", authToken);
 
+adminApiRouter.post("/lecturer", createLecturerController);
 adminApiRouter.patch("/", updateUserController);
 adminApiRouter.delete("/:iduser", deleteUserController);
 adminApiRouter.get("/", getAllUserController);

@@ -23,8 +23,9 @@ app.use(express.urlencoded({ extended: true }))
 // Cấu hình CORS
 app.use(cors({
   origin: 'http://localhost:3000', // Đảm bảo địa chỉ này đúng
-  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Kết nối đến cơ sở dữ liệu
@@ -36,9 +37,9 @@ app.use('/admin', adminApiRouter)
 
 app.use('/courses', courseRoutes);
 
-app.use('/quizzes',quizRoutes);
+app.use('/quizzes', quizRoutes);
 
-app.use('/notify',notifyRoutes);
+app.use('/notify', notifyRoutes);
 
 app.use('/lessons', lessonRoutes);
 
