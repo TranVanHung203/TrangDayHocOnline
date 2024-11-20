@@ -22,6 +22,8 @@ export const getCoursesByUserId = async (req, res, next) => {
     const role = req.user.role;
     const objectId = new mongoose.Types.ObjectId(userId);
 
+    console.log(userId)
+
     const { page = 1, limit = 9 } = req.query; // Default pagination values
     const parsedLimit = Math.min(parseInt(limit), 9); // Limit to a maximum of 9
 
@@ -53,7 +55,10 @@ export const getCoursesByUserId = async (req, res, next) => {
       match: { end_day: { $gte: currentDate } }, // Only courses with end_day >= today (date only)
     });
 
+
+    console.log(lecturer)
     if (lecturer) {
+
       const totalCourses = lecturer.courses.length;
       const courses = lecturer.courses.slice((page - 1) * parsedLimit, page * parsedLimit);
 
