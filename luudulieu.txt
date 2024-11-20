@@ -1,5 +1,11 @@
---------------
-(Tạo quiz)
+
+
+
+
+
+
+
+
 {
     "questions": [
         {
@@ -64,6 +70,7 @@ name: Lesson 1: Introduction to Variables
 number: 1
 lesson_details:This lesson covers the basics of variables in programming
 type: Video
+file: 
 -------------------------------------
  submit câu hỏi
 {

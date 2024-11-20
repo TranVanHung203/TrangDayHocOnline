@@ -9,6 +9,7 @@ import {
     submitQuiz,
     updateQuiz,
     updateQuestionandAnswer,
+    getQuestionAndAnswer
 } from '../controllers/quizController.js';
 
 import { authToken } from '../middlewares/authMiddleware.js';
@@ -50,5 +51,7 @@ router.patch('/:quizId',updateQuiz)
 //sửa question(tên)
 router.patch('/:quizId/:questionId',updateQuestionandAnswer)
 
+
+router.get('/Q&A/:quizId', getQuestionAndAnswer);
 
 export default router;
