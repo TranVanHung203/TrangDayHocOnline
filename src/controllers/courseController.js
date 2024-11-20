@@ -599,6 +599,8 @@ export const createQuiz = async (req, res, next) => {
 
     // Tạo một quiz mới với dữ liệu từ body request
     const newQuiz = new Quiz(quizData);
+    newQuiz.start_deadline.setHours(newQuiz.start_deadline.getHours() + 7)
+    newQuiz.end_deadline.setHours(newQuiz.end_deadline.getHours() + 7)
     await newQuiz.save();
 
     // Tìm khóa học và thêm quiz vào danh sách quiz

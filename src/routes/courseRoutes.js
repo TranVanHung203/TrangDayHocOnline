@@ -58,7 +58,7 @@ router.post('/quizzes/:courseId', createQuiz);
 
 router.get('/quizzes/:courseId', getAllQuizzes)//không biết có sài hay k
 
-router.get('/:courseId/progress', getQuizzesForStudent)//không biết có sài hay k
+router.get('/:courseId/progress', getQuizzesForStudent)
 
 
 
