@@ -87,7 +87,8 @@ const loginUserController = async (req, res) => {
                 user: {
                     email: email,
                     name: user.name,
-                    role: user.role
+                    role: user.role,
+                    access_token, refresh_token,
                 },
                 EM: "Đăng nhập thành công"
             })
