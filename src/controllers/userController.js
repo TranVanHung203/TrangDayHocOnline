@@ -11,21 +11,36 @@ import 'dotenv/config';
 const createUserController = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+        //Validate email unique
+        const isExistUser = await User.findOne({ email: email })
+        console.log('exist user', isExistUser);
+        if (isExistUser) {
+            return res.status(200).json({
+                EC: 1,
+                EM: "User's email is exist"
+            });
+        }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Create a new user
-        const user = await User.create({ name, email, password: hashedPassword, role: 'Student' });
+        const user = await User.create({ name, email, password: hashedPassword, role: 'Student', is_verify_email: false });
 
         // Create a new student referencing the newly created user
         const student = await Student.create({ user: user._id, courses: [] });
 
         // Respond with both user and student data
-        return res.status(200).json("Tạo tài khoản thành công");
+        return res.status(200).json({
+            EC: 0,
+            EM: "Tạo tài khoản thành công"
+        });
     } catch (error) {
         console.error("Error creating user and student:", error);
-        return res.status(500).json({ error: "An error occurred while creating the user and student" });
+        return res.status(500).json({
+            EC: 1,
+            EM: "An error occurred while creating the user and student"
+        });
     }
 }
 
@@ -35,6 +50,13 @@ const loginUserController = async (req, res) => {
     //find user by email
     const user = await User.findOne({ email: email });
     if (user) {
+        //check email verification
+        if (!user.is_verify_email) {
+            return res.status(200).json({
+                EC: 1,
+                EM: "Email is not verify"
+            });
+        }
         //compare password
         const isMatchPassword = await bcrypt.compare(password, user.password);
         if (isMatchPassword) {
@@ -61,19 +83,28 @@ const loginUserController = async (req, res) => {
                 httpOnly: true,
             });
             return res.status(200).json({
+                EC: 0,
                 user: {
                     email: email,
                     name: user.name,
-                    access_token,refresh_token,
-                }
+                    role: user.role,
+                    access_token, refresh_token,
+                },
+                EM: "Đăng nhập thành công"
             })
         }
         else {
-            res.status(200).json("Email hoặc Password không hợp lệ");
+            res.status(200).json({
+                EC: 1,
+                EM: "Email hoặc Password không hợp lệ"
+            });
         }
     }
     else {
-        res.status(200).json("Email hoặc Password không hợp lệ");
+        res.status(200).json({
+            EC: 1,
+            EM: "Email hoặc Password không hợp lệ"
+        });
     }
 }
 
@@ -128,14 +159,23 @@ const forgotPasswordController = async (req, res) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log(error);
-                res.status(500).send('Error sending email');
+                res.status(500).send({
+                    EC: 1,
+                    EM: 'Error sending email'
+                });
             } else {
                 console.log(`Email sent: ${info.response}`);
-                res.status(200).send('Check your email for instructions on resetting your password');
+                res.status(200).send({
+                    EC: 0,
+                    EM: 'Check your email for instructions on resetting your password'
+                });
             }
         });
     } else {
-        res.status(404).send('Email not found');
+        res.status(404).send({
+            EC: 1,
+            EM: 'Email not found'
+        });
     }
 }
 
@@ -151,6 +191,64 @@ const resetPasswordController = async (req, res) => {
         user.password = hashPassword;
         user.reset_token = ""; // Remove the reset token after the password is updated
         await user.save();
+        res.status(200).json({
+            EC: 0,
+            EM: 'Password updated successfully'
+        });
+    } else {
+        res.status(404).json({
+            EC: 1,
+            EM: 'Invalid or expired token'
+        });
+    }
+}
+
+const verifyAccountController = async (req, res) => {
+    const { email } = req.body;
+    // Check if the email exists in your user database
+    const user = await User.findOne({ email: email });
+    if (user) {
+        // Generate a vertification token
+        const token = crypto.randomBytes(20).toString('hex');
+        // Store the token with the user's email in a database or in-memory store
+        user.verify_token = token;
+        await user.save();
+        // Send the vertification token to the user's email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'chututmusic@gmail.com',
+                pass: 'mwfl repn ehlq tond',
+            },
+        });
+        const mailOptions = {
+            from: 'chututmusic@gmail.com',
+            to: email,
+            subject: 'Verify Email',
+            text: `Click the following link to verify your email: http://localhost:3000/verify-email/${token}`, //link ở front end
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                res.status(500).send('Error sending email');
+            } else {
+                console.log(`Email sent: ${info.response}`);
+                res.status(200).send('Check your email for instructions on verify your email');
+            }
+        });
+    } else {
+        res.status(404).send('Email not found');
+    }
+}
+
+const verifyEmailController = async (req, res) => {
+    const { token } = req.body;
+    // Find the user with the given token and verify their email
+    const user = await User.findOne({ verify_token: token });
+    if (user) {
+        user.is_verify_email = true;
+        user.verify_token = "";
+        await user.save();
         res.status(200).send('Password updated successfully');
     } else {
         res.status(404).send('Invalid or expired token');
@@ -159,11 +257,12 @@ const resetPasswordController = async (req, res) => {
 
 export {
     createUserController, loginUserController, changePasswordController,
-    forgotPasswordController, resetPasswordController
+    forgotPasswordController, resetPasswordController, verifyAccountController,
+    verifyEmailController
 };
 
 export const logout = (req, res, next) => {
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");
     res.status(200).send()
-  }
+}

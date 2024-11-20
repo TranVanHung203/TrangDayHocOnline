@@ -36,9 +36,9 @@ app.use('/admin', adminApiRouter)
 
 app.use('/courses', courseRoutes);
 
-app.use('/quizzes',quizRoutes);
+app.use('/quizzes', quizRoutes);
 
-app.use('/notify',notifyRoutes);
+app.use('/notify', notifyRoutes);
 
 app.use('/lessons', lessonRoutes);
 
