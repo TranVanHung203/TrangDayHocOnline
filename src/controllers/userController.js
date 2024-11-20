@@ -7,7 +7,24 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
+export const getUserRole = async (req, res) => {
+    try {
+        const userId = req.user.id; // ID của người dùng đã đăng nhập từ req.user
 
+        // Tìm người dùng theo userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+        }
+
+        // Trả về role của người dùng
+        return res.json({ role: user.role });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi lấy role người dùng' });
+    }
+};
 const createUserController = async (req, res) => {
     try {
         const { name, email, password } = req.body;
