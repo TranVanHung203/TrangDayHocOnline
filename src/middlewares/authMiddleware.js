@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 const authToken = (req, res, next) => {
-    const white_lists = ["/", "/register", "/login", "/forgot-password", "/reset-password"];
-
+    const white_lists = ["/", "/register", "/login", "/forgot-password", "/reset-password", "/verify-account", "/verify-email"];
     if (white_lists.find(item => '' + item === req.originalUrl)) {
         next();
     }
@@ -19,7 +18,6 @@ const authToken = (req, res, next) => {
                 email: decode.email,
                 name: decode.name,
             }
-            console.log(decode);
             next();
         } catch (error) {
             if (error.name === "TokenExpiredError") {

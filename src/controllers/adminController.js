@@ -1,6 +1,9 @@
 import User from "../models/user.schema.js";
 import Lecturer from "../models/lecturer.schema.js";
 import Student from "../models/student.schema.js";
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
+
 const updateUserController = async (req, res) => {
     const { name, email, role } = req.body;
 
@@ -99,9 +102,33 @@ const getUserController = async (req, res) => {
     return res.status(200).json(data);
 }
 
+const createLecturerController = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        //Validate email unique
+        const isExistUser = await User.findOne({ email: email })
+        if (isExistUser) {
+            return res.status(200).json("User's email is exist");
+        }
 
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create a new user
+        const user = await User.create({ name, email, password: hashedPassword, role: 'Lecturer', is_verify_email: false });
+
+        // Create a new lecturer referencing the newly created user
+        const lecturer = await Lecturer.create({ user: user._id, courses: [] });
+
+        // Respond with both user and lecturer data
+        return res.status(200).json("Tạo tài khoản thành công");
+    } catch (error) {
+        console.error("Error creating user and lecturer:", error);
+        return res.status(500).json({ error: "An error occurred while creating the user and lecturer" });
+    }
+}
 
 export {
     updateUserController, deleteUserController, getAllUserController,
-    getUserController
+    getUserController, createLecturerController
 };
