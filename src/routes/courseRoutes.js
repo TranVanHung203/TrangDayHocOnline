@@ -12,7 +12,8 @@ import {
     getCourseStudents,
     createQuiz,
     getAllQuizzes,
-    updateModule
+    updateModule,
+    getQuizzesForStudent
 } from '../controllers/courseController.js'; // Nhập các controller
 
 import { authToken } from '../middlewares/authMiddleware.js';
@@ -56,6 +57,8 @@ router.get('/students/:courseId', getCourseStudents);//rồi
 router.post('/quizzes/:courseId', createQuiz);
 
 router.get('/quizzes/:courseId', getAllQuizzes)//không biết có sài hay k
+
+router.get('/:courseId/progress', getQuizzesForStudent)
 
 
 
