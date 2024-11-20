@@ -93,6 +93,14 @@ const getAllUserController = async (req, res) => {
     return res.status(200).json(data);
 }
 
+const getAllStudentController = async (req, res) => {
+    // if (!req.user || req.user.role !== "Admin") {
+    //     return res.status(403).json({ message: "Access denied. Admins only." });
+    // }
+    const data = await User.find({ role: "Student" });
+    return res.status(200).json(data);
+}
+
 const getUserController = async (req, res) => {
     if (!req.user || req.user.role !== "Admin") {
         return res.status(403).json({ message: "Access denied. Admins only." });
@@ -130,5 +138,5 @@ const createLecturerController = async (req, res) => {
 
 export {
     updateUserController, deleteUserController, getAllUserController,
-    getUserController, createLecturerController
+    getUserController, createLecturerController, getAllStudentController
 };
