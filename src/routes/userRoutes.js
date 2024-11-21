@@ -2,7 +2,6 @@ import express from 'express';
 import {
     changePasswordController, createUserController, forgotPasswordController,
     loginUserController, resetPasswordController, logout,
-    verifyAccountController,
     verifyEmailController, getUserRole
 } from '../controllers/userController.js';
 import { authToken } from '../middlewares/authMiddleware.js';
