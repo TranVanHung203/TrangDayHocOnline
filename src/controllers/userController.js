@@ -93,11 +93,11 @@ const loginUserController = async (req, res) => {
             })
             res.cookie('access_token', access_token, {
                 secure: false, // set to true if you're using https
-                httpOnly: false,
+                httpOnly: true,
             });
             res.cookie('refresh_token', refresh_token, {
                 secure: false, // set to true if you're using https
-                httpOnly: false,
+                httpOnly: true,
             });
             return res.status(200).json({
                 EC: 0,
@@ -105,6 +105,7 @@ const loginUserController = async (req, res) => {
                     email: email,
                     name: user.name,
                     role: user.role,
+                    userid: user._id,
                     access_token, refresh_token,
                 },
                 EM: "Đăng nhập thành công"
