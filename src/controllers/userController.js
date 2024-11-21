@@ -30,6 +30,35 @@ const createUserController = async (req, res) => {
         // Create a new student referencing the newly created user
         const student = await Student.create({ user: user._id, courses: [] });
 
+        // Generate a vertification token
+        const token = crypto.randomBytes(20).toString('hex');
+        // Store the token with the user's email in a database or in-memory store
+        user.verify_token = token;
+        await user.save();
+        // Send the vertification token to the user's email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'chututmusic@gmail.com',
+                pass: 'mwfl repn ehlq tond',
+            },
+        });
+        const mailOptions = {
+            from: 'chututmusic@gmail.com',
+            to: email,
+            subject: 'Verify Email',
+            text: `Click the following link to verify your email: http://localhost:3000/verify-email/${token}`, //link ở front end
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                res.status(500).send('Error sending email');
+            } else {
+                console.log(`Email sent: ${info.response}`);
+                res.status(200).send('Check your email for instructions on verify your email');
+            }
+        });
+
         // Respond with both user and student data
         return res.status(200).json({
             EC: 0,
@@ -203,44 +232,6 @@ const resetPasswordController = async (req, res) => {
     }
 }
 
-const verifyAccountController = async (req, res) => {
-    const { email } = req.body;
-    // Check if the email exists in your user database
-    const user = await User.findOne({ email: email });
-    if (user) {
-        // Generate a vertification token
-        const token = crypto.randomBytes(20).toString('hex');
-        // Store the token with the user's email in a database or in-memory store
-        user.verify_token = token;
-        await user.save();
-        // Send the vertification token to the user's email
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'chututmusic@gmail.com',
-                pass: 'mwfl repn ehlq tond',
-            },
-        });
-        const mailOptions = {
-            from: 'chututmusic@gmail.com',
-            to: email,
-            subject: 'Verify Email',
-            text: `Click the following link to verify your email: http://localhost:3000/verify-email/${token}`, //link ở front end
-        };
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log(error);
-                res.status(500).send('Error sending email');
-            } else {
-                console.log(`Email sent: ${info.response}`);
-                res.status(200).send('Check your email for instructions on verify your email');
-            }
-        });
-    } else {
-        res.status(404).send('Email not found');
-    }
-}
-
 const verifyEmailController = async (req, res) => {
     const { token } = req.body;
     // Find the user with the given token and verify their email
@@ -249,15 +240,15 @@ const verifyEmailController = async (req, res) => {
         user.is_verify_email = true;
         user.verify_token = "";
         await user.save();
-        res.status(200).send('Password updated successfully');
+        res.status(200).json('Verify email successfully');
     } else {
-        res.status(404).send('Invalid or expired token');
+        res.status(404).json('Invalid or expired token');
     }
 }
 
 export {
     createUserController, loginUserController, changePasswordController,
-    forgotPasswordController, resetPasswordController, verifyAccountController,
+    forgotPasswordController, resetPasswordController,
     verifyEmailController
 };
 
