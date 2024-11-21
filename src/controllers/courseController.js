@@ -251,7 +251,7 @@ export const getCourseById = async (req, res, next) => {
         throw new ForbiddenError('You do not have permission to view this course.');
       }
 
-    } else if (req.user.role == "student") {
+    } else if (req.user.role == "Student") {
       const student = await Student.findOne({
         user: req.user.id,
         courses: courseId,

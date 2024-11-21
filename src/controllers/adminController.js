@@ -93,6 +93,30 @@ const getAllUserController = async (req, res) => {
     return res.status(200).json(data);
 }
 
+const getAllStudentController = async (req, res) => {
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    const data = await User.find({ role: "Student" });
+    return res.status(200).json(data);
+}
+
+const getAllLecturerController = async (req, res) => {
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    const data = await User.find({ role: "Lecturer" });
+    return res.status(200).json(data);
+}
+
+const getAllAdminController = async (req, res) => {
+    if (!req.user || req.user.role !== "Admin") {
+        return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    const data = await User.find({ role: "Admin" });
+    return res.status(200).json(data);
+}
+
 const getUserController = async (req, res) => {
     if (!req.user || req.user.role !== "Admin") {
         return res.status(403).json({ message: "Access denied. Admins only." });
@@ -108,27 +132,34 @@ const createLecturerController = async (req, res) => {
         //Validate email unique
         const isExistUser = await User.findOne({ email: email })
         if (isExistUser) {
-            return res.status(200).json("User's email is exist");
+            return res.status(200).json({
+                EC: 1,
+                EM: "User's email is exist"
+            });
         }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Create a new user
-        const user = await User.create({ name, email, password: hashedPassword, role: 'Lecturer', is_verify_email: false });
+        const user = await User.create({ name, email, password: hashedPassword, role: 'Lecturer', is_verify_email: true });
 
         // Create a new lecturer referencing the newly created user
         const lecturer = await Lecturer.create({ user: user._id, courses: [] });
 
         // Respond with both user and lecturer data
-        return res.status(200).json("Tạo tài khoản thành công");
+        return res.status(200).json({
+            EC: 0,
+            EM: "Tạo tài khoản thành công"
+        });
     } catch (error) {
         console.error("Error creating user and lecturer:", error);
-        return res.status(500).json({ error: "An error occurred while creating the user and lecturer" });
+        return res.status(500).json({ EC: 1, EM: "An error occurred while creating the user and lecturer" });
     }
 }
 
 export {
     updateUserController, deleteUserController, getAllUserController,
-    getUserController, createLecturerController
+    getUserController, createLecturerController, getAllStudentController,
+    getAllLecturerController, getAllAdminController
 };
