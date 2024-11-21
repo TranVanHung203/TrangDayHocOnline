@@ -3,7 +3,7 @@ import {
     changePasswordController, createUserController, forgotPasswordController,
     loginUserController, resetPasswordController, logout,
     verifyAccountController,
-    verifyEmailController,getUserRole
+    verifyEmailController, getUserRole
 } from '../controllers/userController.js';
 import { authToken } from '../middlewares/authMiddleware.js';
 
@@ -20,6 +20,7 @@ apiRouter.patch('/reset-password', resetPasswordController);
 apiRouter.post('/verify-account', verifyAccountController);
 apiRouter.put('/verify-email', verifyEmailController);
 apiRouter.get('/getRole', getUserRole);
+
 
 apiRouter.get("/test", (req, res) => {
     return res.status(200).json("hello");

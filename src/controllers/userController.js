@@ -93,11 +93,11 @@ const loginUserController = async (req, res) => {
             })
             res.cookie('access_token', access_token, {
                 secure: false, // set to true if you're using https
-                httpOnly: true,
+                httpOnly: false,
             });
             res.cookie('refresh_token', refresh_token, {
                 secure: false, // set to true if you're using https
-                httpOnly: true,
+                httpOnly: false,
             });
             return res.status(200).json({
                 EC: 0,
@@ -279,6 +279,7 @@ export {
 };
 
 export const logout = (req, res, next) => {
+
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");
     res.status(200).send()
