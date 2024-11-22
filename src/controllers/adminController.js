@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
 const updateUserController = async (req, res) => {
-    const { name, email, role } = req.body;
+    const { id, name, email, role, is_verify_email } = req.body;
 
     // Kiểm tra quyền Admin
     if (!req.user || req.user.role !== "Admin") {
@@ -14,9 +14,9 @@ const updateUserController = async (req, res) => {
 
     try {
         // Tìm người dùng theo email
-        const user = await User.findOneAndUpdate({ email: email }, { name, role });
+        const user = await User.findOneAndUpdate({ _id: id }, { email, name, role, is_verify_email });
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json({ EC: 1, EM: "User not found." });
         }
 
         // Cập nhật bảng liên quan dựa trên role mới
@@ -44,10 +44,10 @@ const updateUserController = async (req, res) => {
             await Lecturer.deleteOne({ user: user._id });
         }
 
-        return res.status(200).json({ message: "User updated successfully." });
+        return res.status(200).json({ EC: 0, EM: "User updated successfully." });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ EC: 1, EM: error.message });
     }
 };
 
@@ -77,10 +77,16 @@ const deleteUserController = async (req, res) => {
 
 
 
-        return res.status(200).json({ message: "User and related records deleted successfully." });
+        return res.status(200).json({
+            EC: 0,
+            message: "User and related records deleted successfully."
+        });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({
+            EC: 1,
+            message: error.message
+        });
     }
 };
 
