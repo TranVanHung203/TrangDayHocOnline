@@ -478,6 +478,7 @@ export const startQuiz = async (req, res, next) => {
   try {
     // Tìm sinh viên dựa trên userId
     const student = await Student.findOne({ user: userId });
+    console.log("aaa", student);
 
     if (!student) {
       throw new NotFoundError(`Student not found for user ID ${userId}`);
